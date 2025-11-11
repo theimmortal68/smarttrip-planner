@@ -1,0 +1,112 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          String          @id @default(cuid())
+  email       String          @unique
+  name        String?
+  avatarUrl   String?
+  role        String          @default("owner")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // relations
+  trips       Trip[]          @relation("OwnerTrips")
+  members     TripMember[]
+  createdItems ItineraryItem[] @relation("CreatedBy")
+}
+
+model Trip {
+  id        Int      @id @default(autoincrement())
+  ownerId   Int      @map("creator_id")
+  name      String
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  notes     String?  @db.Text
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @updatedAt
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  members TripMember[]
+  items   ItineraryItem[]
+
+  @@map("trips")
+}
+
+/// TRIPS
+model Trip {
+  id          Int              @id @default(autoincrement())
+  creatorId   Int              @map("creator_id")
+  name        String?
+  locationName String?         @map("location_name")
+  startDate   DateTime         @db.Date @map("start_date")
+  endDate     DateTime         @db.Date @map("end_date")
+  notes       String?          @db.Text
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  // relations
+  creator     User             @relation("TripCreator", fields: [creatorId], references: [id], onDelete: Restrict)
+  members     TripMember[]
+  items       ItineraryItem[]
+
+  @@index([creatorId])
+  @@map("trips")
+}
+
+/// TRIP_MEMBERS (bridge)
+model TripMember {
+  id        Int       @id @default(autoincrement())
+  tripId    Int       @map("trip_id")
+  userId    Int?      @map("user_id")
+  role      String
+  joinedAt  DateTime? @map("joined_at") @default(now())
+
+  // relations
+  trip      Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, userId])
+  @@index([tripId])
+  @@index([userId])
+  @@map("trip_members")
+}
+
+/// ITINERARY_ITEMS
+model ItineraryItem {
+  id              Int       @id @default(autoincrement())
+  tripId          Int       @map("trip_id")
+  dayIndex        Int       @map("day_index")
+  title           String
+  description     String?   @db.Text
+  startTime       DateTime? @db.Time @map("start_time")
+  endTime         DateTime? @db.Time @map("end_time")
+  durationHours   Decimal?  @db.Decimal(5, 2) @map("duration_hours")
+  locationName    String?   @map("location_name")
+  googlePlaceId   String?   @map("google_place_id")
+  activityType    String?   @map("activity_type")
+  participantsJson Json?    @map("participants_json")
+  equipmentList    Json?    @map("equipment_list")
+  foodPlan        String?   @db.Text @map("food_plan")
+  transportMode   String?   @map("transport_mode")
+  sortOrder       Int?      @map("sort_order")
+  createdBy       Int?      @map("created_by")
+  updatedBy       Int?      @map("updated_by")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // relations
+  trip     Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  creator  User?  @relation("ItemCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  updater  User?  @relation("ItemUpdater", fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  @@index([tripId, dayIndex, sortOrder])
+  @@index([googlePlaceId])
+  @@map("itinerary_items")
+}

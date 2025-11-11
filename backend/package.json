@@ -4,8 +4,10 @@
   "description": "Application to assist/monitor traveling trips",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/app.js",
-    "start": "node src/app.js"
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "prisma:generate": "dotenv -e .env -- npx prisma generate --schema=prisma/schema.prisma",
+    "prisma:migrate": "dotenv -e .env -- npx prisma migrate dev --name init_schema --schema=prisma/schema.prisma"
   },
   "repository": {
     "type": "git",
@@ -20,13 +22,17 @@
   },
   "homepage": "https://github.com/robertstahldev/smarttrip-planner#readme",
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
     "morgan": "^1.10.1",
     "mysql2": "^3.15.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "dotenv-cli": "^11.0.0",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.19.0"
   }
 }
