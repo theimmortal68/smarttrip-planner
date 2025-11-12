@@ -9,6 +9,8 @@ Tests 1-6 are SHOULD FAIL!
 Each test should make an error, proves the constraint works.
 
 Tests 7-10 should SUCCEED WITH cascade delete behavior.
+Manipulate the comment brackets to test each at a time.
+
 ========================================
 */
 
