@@ -2,7 +2,7 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-// Create a connection pool for better performance
+// Connection pool for better performance
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT || 3306,
