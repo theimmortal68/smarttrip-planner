@@ -2,9 +2,6 @@
 ========================================
 TRIP PLANNER DATABASE SCHEMA 
 ========================================
-Activities table  as a STANDALONE 
-Itinerary_items uses a free-text activity_type field instead.
-========================================
 */
 
 CREATE DATABASE IF NOT EXISTS smart_trip;
