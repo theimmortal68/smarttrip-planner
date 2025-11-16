@@ -1,112 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model activities {
+  id                     Int       @id @default(autoincrement())
+  name                   String    @db.VarChar(255)
+  description            String?   @db.Text
+  category               String?   @db.VarChar(255)
+  default_duration_hours Decimal?  @db.Decimal(5, 2)
+  created_at             DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
 }
 
-model User {
-  id          String          @id @default(cuid())
-  email       String          @unique
-  name        String?
-  avatarUrl   String?
-  role        String          @default("owner")
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+model cost_items {
+  id         Int       @id @default(autoincrement())
+  trip_id    Int
+  label      String    @db.VarChar(255)
+  amount     Decimal   @db.Decimal(10, 2)
+  paid_by    Int
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  trips      trips     @relation(fields: [trip_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "cost_items_ibfk_1")
+  users      users     @relation(fields: [paid_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cost_items_ibfk_2")
 
-  // relations
-  trips       Trip[]          @relation("OwnerTrips")
-  members     TripMember[]
-  createdItems ItineraryItem[] @relation("CreatedBy")
+  @@index([paid_by], map: "cost_items_index_10")
+  @@index([trip_id], map: "cost_items_index_9")
 }
 
-model Trip {
-  id        Int      @id @default(autoincrement())
-  ownerId   Int      @map("creator_id")
-  name      String
-  startDate DateTime @map("start_date")
-  endDate   DateTime @map("end_date")
-  notes     String?  @db.Text
-  createdAt DateTime @map("created_at") @default(now())
-  updatedAt DateTime @map("updated_at") @updatedAt
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model invites {
+  id          Int       @id @default(autoincrement())
+  trip_id     Int
+  email       String    @db.VarChar(255)
+  role        String    @db.VarChar(255)
+  token       String    @unique(map: "token") @db.VarChar(255)
+  expires_at  DateTime  @db.Timestamp(0)
+  accepted_at DateTime? @db.Timestamp(0)
+  created_at  DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  trips       trips     @relation(fields: [trip_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "invites_ibfk_1")
 
-  owner   User   @relation(fields: [ownerId], references: [id])
-  members TripMember[]
-  items   ItineraryItem[]
-
-  @@map("trips")
+  @@index([trip_id], map: "invites_index_7")
+  @@index([token], map: "invites_index_8")
 }
 
-/// TRIPS
-model Trip {
-  id          Int              @id @default(autoincrement())
-  creatorId   Int              @map("creator_id")
-  name        String?
-  locationName String?         @map("location_name")
-  startDate   DateTime         @db.Date @map("start_date")
-  endDate     DateTime         @db.Date @map("end_date")
-  notes       String?          @db.Text
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
+model itinerary_items {
+  id                                      Int       @id @default(autoincrement())
+  trip_id                                 Int
+  day_index                               Int?
+  title                                   String    @db.VarChar(255)
+  description                             String?   @db.Text
+  start_time                              DateTime? @db.Time(0)
+  end_time                                DateTime? @db.Time(0)
+  duration_hours                          Decimal?  @db.Decimal(5, 2)
+  location_name                           String?   @db.VarChar(255)
+  google_place_id                         String?   @db.VarChar(255)
+  activity_type                           String?   @db.VarChar(255)
+  participants_json                       Json?
+  equipment_list                          Json?
+  food_plan                               String?   @db.Text
+  transport_mode                          String?   @db.VarChar(255)
+  notes                                   String?   @db.Text
+  sort_order                              Int?
+  created_by                              Int?
+  created_at                              DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_by                              Int?
+  updated_at                              DateTime? @db.Timestamp(0)
+  trips                                   trips     @relation(fields: [trip_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "itinerary_items_ibfk_1")
+  users_itinerary_items_created_byTousers users?    @relation("itinerary_items_created_byTousers", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "itinerary_items_ibfk_2")
+  users_itinerary_items_updated_byTousers users?    @relation("itinerary_items_updated_byTousers", fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "itinerary_items_ibfk_3")
 
-  // relations
-  creator     User             @relation("TripCreator", fields: [creatorId], references: [id], onDelete: Restrict)
-  members     TripMember[]
-  items       ItineraryItem[]
-
-  @@index([creatorId])
-  @@map("trips")
+  @@unique([user_id, trip_id], map: "user_id_trip_id")
+  @@index([trip_id], map: "itinerary_items_index_3")
+  @@index([created_by], map: "itinerary_items_index_4")
+  @@index([trip_id, day_index], map: "itinerary_items_index_5")
+  @@index([updated_by], map: "updated_by")
 }
 
-/// TRIP_MEMBERS (bridge)
-model TripMember {
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model trip_members {
   id        Int       @id @default(autoincrement())
-  tripId    Int       @map("trip_id")
-  userId    Int?      @map("user_id")
-  role      String
-  joinedAt  DateTime? @map("joined_at") @default(now())
+  user_id   Int
+  trip_id   Int
+  role      String    @db.VarChar(255)
+  joined_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  users     users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "trip_members_ibfk_1")
+  trips     trips     @relation(fields: [trip_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "trip_members_ibfk_2")
 
-  // relations
-  trip      Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([tripId, userId])
-  @@index([tripId])
-  @@index([userId])
-  @@map("trip_members")
+  @@unique([user_id, trip_id], map: "trip_members_index_2")
+  @@index([trip_id], map: "trip_id")
 }
 
-/// ITINERARY_ITEMS
-model ItineraryItem {
-  id              Int       @id @default(autoincrement())
-  tripId          Int       @map("trip_id")
-  dayIndex        Int       @map("day_index")
-  title           String
-  description     String?   @db.Text
-  startTime       DateTime? @db.Time @map("start_time")
-  endTime         DateTime? @db.Time @map("end_time")
-  durationHours   Decimal?  @db.Decimal(5, 2) @map("duration_hours")
-  locationName    String?   @map("location_name")
-  googlePlaceId   String?   @map("google_place_id")
-  activityType    String?   @map("activity_type")
-  participantsJson Json?    @map("participants_json")
-  equipmentList    Json?    @map("equipment_list")
-  foodPlan        String?   @db.Text @map("food_plan")
-  transportMode   String?   @map("transport_mode")
-  sortOrder       Int?      @map("sort_order")
-  createdBy       Int?      @map("created_by")
-  updatedBy       Int?      @map("updated_by")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+model trips {
+  id              Int               @id @default(autoincrement())
+  creator_id      Int
+  location        String?           @db.VarChar(255)
+  start_date      DateTime?         @db.Date
+  end_date        DateTime?         @db.Date
+  notes           String?           @db.Text
+  created_at      DateTime?         @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at      DateTime?         @db.Timestamp(0)
+  cost_items      cost_items[]
+  invites         invites[]
+  itinerary_items itinerary_items[]
+  trip_members    trip_members[]
+  users           users             @relation(fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "trips_ibfk_1")
 
-  // relations
-  trip     Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  creator  User?  @relation("ItemCreator", fields: [createdBy], references: [id], onDelete: SetNull)
-  updater  User?  @relation("ItemUpdater", fields: [updatedBy], references: [id], onDelete: SetNull)
+  @@index([creator_id], map: "trips_index_0")
+  @@index([start_date, end_date], map: "trips_index_1")
+}
 
-  @@index([tripId, dayIndex, sortOrder])
-  @@index([googlePlaceId])
-  @@map("itinerary_items")
+model users {
+  id                                                Int               @id @default(autoincrement())
+  name                                              String?           @db.VarChar(255)
+  email                                             String            @unique(map: "email") @db.VarChar(255)
+  password_hash                                     String            @db.VarChar(255)
+  created_at                                        DateTime?         @default(dbgenerated("(now())")) @db.Timestamp(0)
+  cost_items                                        cost_items[]
+  itinerary_items_itinerary_items_created_byTousers itinerary_items[] @relation("itinerary_items_created_byTousers")
+  itinerary_items_itinerary_items_updated_byTousers itinerary_items[] @relation("itinerary_items_updated_byTousers")
+  trip_members                                      trip_members[]
+  trips                                             trips[]
 }
