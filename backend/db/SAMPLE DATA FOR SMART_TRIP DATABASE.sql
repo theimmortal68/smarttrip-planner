@@ -29,17 +29,17 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ========================================
 -- USERS
 -- ========================================
-INSERT INTO users (name, email, password_hash, created_at) VALUES
-('Alice Johnson', 'alice@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyz123456', '2024-01-15 10:00:00'),
-('Bob Smith', 'bob@example.com', '$2a$10$bcdefghijklmnopqrstuvwxyz234567', '2024-01-16 11:30:00'),
-('Charlie Brown', 'charlie@example.com', '$2a$10$cdefghijklmnopqrstuvwxyz345678', '2024-01-17 09:15:00'),
-('Diana Prince', 'diana@example.com', '$2a$10$defghijklmnopqrstuvwxyz456789', '2024-01-18 14:20:00'),
-('Eve Martinez', 'eve@example.com', '$2a$10$efghijklmnopqrstuvwxyz567890', '2024-01-19 16:45:00'),
-('Frank Miller', 'frank@example.com', '$2a$10$fghijklmnopqrstuvwxyz678901', '2024-01-20 08:30:00'),
-('Grace Lee', 'grace@example.com', '$2a$10$ghijklmnopqrstuvwxyz789012', '2024-01-21 12:00:00'),
-('Henry Chen', 'henry@example.com', '$2a$10$hijklmnopqrstuvwxyz890123', '2024-01-22 15:30:00'),
-('Iris Wang', 'iris@example.com', '$2a$10$ijklmnopqrstuvwxyz901234', '2024-01-23 10:45:00'),
-('Jack Davis', 'jack@example.com', '$2a$10$jklmnopqrstuvwxyz012345', '2024-01-24 13:15:00');
+INSERT INTO users (first_name, last_name, email, password_hash, created_at) VALUES
+('Alice', 'Johnson', 'alice@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyz123456', '2024-01-15 10:00:00'),
+('Bob', 'Smith', 'bob@example.com', '$2a$10$bcdefghijklmnopqrstuvwxyz234567', '2024-01-16 11:30:00'),
+('Charlie', 'Brown', 'charlie@example.com', '$2a$10$cdefghijklmnopqrstuvwxyz345678', '2024-01-17 09:15:00'),
+('Diana', 'Prince', 'diana@example.com', '$2a$10$defghijklmnopqrstuvwxyz456789', '2024-01-18 14:20:00'),
+('Eve', 'Martinez', 'eve@example.com', '$2a$10$efghijklmnopqrstuvwxyz567890', '2024-01-19 16:45:00'),
+('Frank', 'Miller', 'frank@example.com', '$2a$10$fghijklmnopqrstuvwxyz678901', '2024-01-20 08:30:00'),
+('Grace', 'Lee', 'grace@example.com', '$2a$10$ghijklmnopqrstuvwxyz789012', '2024-01-21 12:00:00'),
+('Henry', 'Chen', 'henry@example.com', '$2a$10$hijklmnopqrstuvwxyz890123', '2024-01-22 15:30:00'),
+('Iris', 'Wang', 'iris@example.com', '$2a$10$ijklmnopqrstuvwxyz901234', '2024-01-23 10:45:00'),
+('Jack', 'Davis', 'jack@example.com', '$2a$10$jklmnopqrstuvwxyz012345', '2024-01-24 13:15:00');
 
 -- ========================================
 -- ACTIVITIES
