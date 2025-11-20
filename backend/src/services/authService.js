@@ -1,14 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const prisma = require('../../db'); 
-const splitName = require('../utils/splitName');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 
-async function registerUser({ email, password, name }) {
-  // Split name into first + last
-  const { firstName, lastName } = splitName(name);
-
+async function registerUser({ email, password, firstName, lastName }) {
+  
   // Check if exists
   const existing = await prisma.users.findUnique({
     where: { email },

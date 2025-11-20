@@ -5,13 +5,13 @@ const { registerUser, loginUser } = require('../services/authService');
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required' });
   }
 
-  const { user, token } = await registerUser({ name, email, password });
+  const { user, token } = await registerUser({ firstName, lastName, email, password });
 
     return res.status(201).json({
       token,
