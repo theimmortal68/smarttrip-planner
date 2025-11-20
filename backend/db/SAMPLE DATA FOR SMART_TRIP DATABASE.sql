@@ -65,12 +65,12 @@ INSERT INTO activities (name, description, category, default_duration_hours, cre
 -- ========================================
 -- TRIPS
 -- ========================================
-INSERT INTO trips (creator_id, location, start_date, end_date, notes, created_at, updated_at) VALUES
-(1, 'Yosemite National Park, CA', '2025-03-15', '2025-03-20', 'Spring camping and hiking adventure with the crew!', '2024-12-01 10:00:00', '2024-12-01 10:00:00'),
-(2, 'Tokyo, Japan', '2025-05-01', '2025-05-10', 'Cherry blossom season trip - culture, food, and temples', '2024-12-05 14:30:00', '2024-12-05 14:30:00'),
-(3, 'Miami Beach, FL', '2025-07-04', '2025-07-07', 'July 4th beach weekend with friends', '2024-12-10 09:15:00', '2024-12-10 09:15:00'),
-(4, 'Paris, France', '2025-09-12', '2025-09-19', 'Romantic getaway - art, wine, and romance', '2024-12-12 16:45:00', '2024-12-12 16:45:00'),
-(5, 'Banff National Park, Canada', '2025-11-20', '2025-11-25', 'Winter wonderland skiing trip', '2024-12-15 11:20:00', '2024-12-15 11:20:00');
+INSERT INTO trips (creator_id, name, location_name, start_date, end_date, notes, created_at, updated_at) VALUES
+(1, 'Yosemite Spring Adventure', 'Yosemite National Park, CA', '2025-03-15', '2025-03-20', 'Spring camping and hiking adventure with the crew!', '2024-12-01 10:00:00', '2024-12-01 10:00:00'),
+(2, 'Tokyo Cherry Blossoms', 'Tokyo, Japan', '2025-05-01', '2025-05-10', 'Cherry blossom season trip - culture, food, and temples', '2024-12-05 14:30:00', '2024-12-05 14:30:00'),
+(3, 'Miami 4th of July', 'Miami Beach, FL', '2025-07-04', '2025-07-07', 'July 4th beach weekend with friends', '2024-12-10 09:15:00', '2024-12-10 09:15:00'),
+(4, 'Paris Romantic Getaway', 'Paris, France', '2025-09-12', '2025-09-19', 'Romantic getaway - art, wine, and romance', '2024-12-12 16:45:00', '2024-12-12 16:45:00'),
+(5, 'Banff Winter Skiing', 'Banff National Park, Canada', '2025-11-20', '2025-11-25', 'Winter wonderland skiing trip', '2024-12-15 11:20:00', '2024-12-15 11:20:00');
 
 -- ========================================
 -- TRIP MEMBERS
@@ -292,7 +292,8 @@ UNION ALL SELECT 'Cost Items', COUNT(*) FROM cost_items;
 
 SELECT '=== SAMPLE DATA SUMMARY ===' AS 'INFO';
 SELECT
-    t.location AS 'Trip Location',
+    t.name AS 'Trip Name',
+    t.location_name AS 'Location',
     COUNT(DISTINCT tm.user_id) AS 'Members',
     COUNT(DISTINCT ii.id) AS 'Activities',
     COUNT(DISTINCT ci.id) AS 'Expenses',
@@ -301,5 +302,5 @@ FROM trips t
 LEFT JOIN trip_members tm ON t.id = tm.trip_id
 LEFT JOIN itinerary_items ii ON t.id = ii.trip_id
 LEFT JOIN cost_items ci ON t.id = ci.trip_id
-GROUP BY t.id, t.location
+GROUP BY t.id, t.name, t.location_name
 ORDER BY t.start_date;

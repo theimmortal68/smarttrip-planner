@@ -19,7 +19,8 @@ CREATE TABLE `users` (
 CREATE TABLE `trips` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `creator_id` integer NOT NULL,
-  `location` varchar(255),
+  `name` varchar(255),
+  `location_name` varchar(255),
   `start_date` date,
   `end_date` date,
   `notes` text,
