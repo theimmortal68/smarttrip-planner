@@ -2,3 +2,27 @@ backend/src/db/capstone.txt
 SmartTrip.docx
 
 nul
+
+# Node stuff
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+dist/
+build/
+
+# Per-project node_modules (if you ever run npm inside subdirs)
+backend/node_modules/
+frontend/node_modules/
+
+# Environment / secrets
+.env
+.env.*
+backend/.env
+frontend/.env
+
+# IDE/editor
+.vscode/
+.idea/
+.DS_Store

@@ -1,5 +1,9 @@
+// src/pages/SignUpPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const SignUpPage = () => {
   const [firstName, setFirstName] = useState("");
@@ -13,23 +17,34 @@ const SignUpPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
     if (password !== rePassword) {
       setError("Passwords do not match.");
       return;
     }
+
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, email, password })
+        body: JSON.stringify({ firstName, lastName, email, password }),
       });
+
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.message || 'Signup failed.');
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (_) {
+          // ignore JSON parse error
+        }
+        setError(data.message || data.error || 'Signup failed.');
         return;
       }
-      navigate('/login');
-    } catch {
+
+      // On success, send them to login
+      navigate('/');
+    } catch (err) {
+      console.error('Signup error:', err);
       setError('Network error. Please try again.');
     }
   };
@@ -40,6 +55,7 @@ const SignUpPage = () => {
         <div className="bg-white px-6 py-8 mb-4 shadow-md rounded-md border-3 m-4 md:m-0">
           <form onSubmit={handleSubmit}>
             <h2 className="text-3xl text-center font-semibold mb-6">Sign Up</h2>
+
             <div className="mb-4">
               <label className="block text-gray-700 font-bold mb-2">First Name</label>
               <input
@@ -52,6 +68,7 @@ const SignUpPage = () => {
                 onChange={e => setFirstName(e.target.value)}
               />
             </div>
+
             <div className="mb-4">
               <label className="block text-gray-700 font-bold mb-2">Last Name</label>
               <input
@@ -64,6 +81,7 @@ const SignUpPage = () => {
                 onChange={e => setLastName(e.target.value)}
               />
             </div>
+
             <div className="mb-4">
               <label className="block text-gray-700 font-bold mb-2">Email</label>
               <input
@@ -77,6 +95,7 @@ const SignUpPage = () => {
                 required
               />
             </div>
+
             <div className="mb-4">
               <label className="block text-gray-700 font-bold mb-2">Password</label>
               <input
@@ -90,8 +109,11 @@ const SignUpPage = () => {
                 required
               />
             </div>
+
             <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">Re-Enter Your Password</label>
+              <label className="block text-gray-700 font-bold mb-2">
+                Re-Enter Your Password
+              </label>
               <input
                 type="password"
                 id="re-enter-password"
@@ -103,9 +125,13 @@ const SignUpPage = () => {
                 required
               />
             </div>
+
             {error && (
-              <div className="mb-4 text-red-600 font-bold text-center">{error}</div>
+              <div className="mb-4 text-red-600 font-bold text-center">
+                {error}
+              </div>
             )}
+
             <div>
               <button
                 className="bg-indigo-900 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg w-full focus:outline-none focus:shadow-outline"
