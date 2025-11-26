@@ -31,7 +31,7 @@ jobs:
         run: |
           ssh -p 1968 "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" "bash /opt/smarttrip/deploy.sh"
 
-      - name: Show recent backend/frontend logs if deploy failed
+      - name: Show recent backend/frontend logs
         if: always()    # only runs if a previous step in this job failed
         run: |
           echo "===== smarttrip-backend (last 80 lines) ====="
