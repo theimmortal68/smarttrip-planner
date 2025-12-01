@@ -1,22 +1,111 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaUser, FaEnvelope, FaTrash } from 'react-icons/fa'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [loading, setLoading] = useState(true)
   
-  // Placeholder user data (will be replaced with real auth data later)
-  const user = {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com'
+  // User data from backend or localStorage
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('user')
+    return stored ? JSON.parse(stored) : null
+  })
+
+  // Fetch fresh user data from backend
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          navigate('/')
+          return
+        }
+
+        // Fetch pattern similar to login - backend should create this endpoint
+        const res = await fetch('/api/users/me', {
+          method: 'GET',
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (!res.ok) {
+          console.error('Failed to fetch user profile')
+          setLoading(false)
+          return
+        }
+
+        const data = await res.json()
+        setUser(data)
+        // Update localStorage so other pages have fresh data
+        localStorage.setItem('user', JSON.stringify(data))
+      } catch (err) {
+        console.error('Error loading profile:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadUserProfile()
+  }, [navigate])
+
+  // COMMENTED OUT: Hardcoded placeholder data
+  // const user = {
+  //   firstName: 'John',
+  //   lastName: 'Doe',
+  //   email: 'john.doe@example.com'
+  // }
+
+  const handleDeleteAccount = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      
+      // Fetch pattern similar to login - backend should create this endpoint
+      const res = await fetch('/api/users/me', {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        alert(data.message || 'Failed to delete account. Please try again.')
+        return
+      }
+
+      // Clear all user data from localStorage
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      
+      // Navigate to login page
+      navigate('/')
+    } catch (err) {
+      console.error('Error deleting account:', err)
+      alert('Network error. Please try again.')
+    }
   }
 
-  const handleDeleteAccount = () => {
-    // TODO: Add actual delete account logic with backend call
-    console.log('Account deleted')
-    navigate('/')
+  if (loading) {
+    return (
+      <section className="bg-gray-50 min-h-screen py-12 px-4 flex items-center justify-center">
+        <div className="bg-white border-4 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
+          <p className="font-black uppercase text-lg">Loading Profile...</p>
+        </div>
+      </section>
+    )
+  }
+
+  if (!user) {
+    return (
+      <section className="bg-gray-50 min-h-screen py-12 px-4 flex items-center justify-center">
+        <div className="bg-white border-4 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
+          <p className="font-black uppercase text-lg">User not found</p>
+        </div>
+      </section>
+    )
   }
 
   return (

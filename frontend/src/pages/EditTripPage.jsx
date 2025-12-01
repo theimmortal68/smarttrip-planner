@@ -219,7 +219,7 @@ const EditTripPage = () => {
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                min={new Date().toISOString().split('T')[0]}
+                min={startDate || new Date().toISOString().split('T')[0]}
                 required
               />
             </div>
@@ -315,7 +315,7 @@ const EditTripPage = () => {
                 <div className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Dropoff Date</label>
-                    <input type="date" name="dropoffDate" value={carRental.dropoffDate} onChange={handleCarRentalChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" min={new Date().toISOString().split('T')[0]} required />
+                    <input type="date" name="dropoffDate" value={carRental.dropoffDate} onChange={handleCarRentalChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" min={carRental.pickupDate || new Date().toISOString().split('T')[0]} required />
                   </div>
                   <div>
                     <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Dropoff Time</label>
@@ -422,7 +422,7 @@ const EditTripPage = () => {
                       </div>
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">End Date</label>
-                        <input type="date" value={activity.endDate} onChange={e => handleActivityChange(activity.id, 'endDate', e.target.value)} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" />
+                        <input type="date" value={activity.endDate} onChange={e => handleActivityChange(activity.id, 'endDate', e.target.value)} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" min={activity.startDate || new Date().toISOString().split('T')[0]} />
                       </div>
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">End Time</label>
@@ -490,7 +490,7 @@ const EditTripPage = () => {
                       </div>
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">End Date</label>
-                        <input type="date" value={lodging.endDate} onChange={e => handleLodgingChange(lodging.id, 'endDate', e.target.value)} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" />
+                        <input type="date" value={lodging.endDate} onChange={e => handleLodgingChange(lodging.id, 'endDate', e.target.value)} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" min={lodging.startDate || new Date().toISOString().split('T')[0]} />
                       </div>
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">End Time</label>

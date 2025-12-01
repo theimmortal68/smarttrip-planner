@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa'
 import { TripContext } from '../context/TripContext'
@@ -7,13 +7,29 @@ const TripDetailsPage = () => {
   const ctx = useContext(TripContext)
   const selectedTrip = ctx?.selectedTrip ?? null
   const loadItineraryItems = ctx?.loadItineraryItems
+  
+  // Mock user role (replace with actual API call when backend is ready)
+  // For testing: owner/co_owner can delete and edit, editor can only edit, viewer can only view
+  const [userRole, setUserRole] = useState('owner') // Change this to test different roles
 
   // Load itinerary items when trip is selected
   useEffect(() => {
     if (selectedTrip?.id && loadItineraryItems) {
       loadItineraryItems(selectedTrip.id)
+      // TODO: Fetch user's role for this trip from backend
+      // const role = await getUserRoleForTrip(selectedTrip.id)
+      // setUserRole(role)
     }
   }, [selectedTrip?.id, loadItineraryItems])
+  
+  // Permission checks
+  const canEdit = () => {
+    return userRole === 'owner' || userRole === 'co_owner' || userRole === 'editor'
+  }
+  
+  const canDelete = () => {
+    return userRole === 'owner'
+  }
 
   if (!selectedTrip) {
     return (
@@ -207,22 +223,28 @@ const TripDetailsPage = () => {
             </div>
 
           {/* Manage Trip Section */}
+          {(canEdit() || canDelete()) && (
           <div className="bg-white border-4 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-8">
             <h3 className="text-2xl font-black uppercase mb-6 pb-4 border-b-4 border-black">Manage Trip</h3>
             <div className="flex flex-col sm:flex-row gap-4">
+              {canEdit() && (
               <Link
                 to="edit-trip"
                 className="flex-1 bg-indigo-900 hover:bg-indigo-700 text-white text-center font-black uppercase py-4 px-6 border-4 border-black rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
               >
                 Edit Trip
               </Link>
+              )}
+              {canDelete() && (
               <button
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white font-black uppercase py-4 px-6 border-4 border-black rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
               >
                 Delete Trip
               </button>
+              )}
             </div>
           </div>
+          )}
         </div>
       </div>
     </section>

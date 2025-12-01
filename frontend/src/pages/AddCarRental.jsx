@@ -112,10 +112,10 @@ const AddCarRental = () => {
             </div>
 
             {/* Dropoff Date & Time */}
-            <div className="mb-4 sm:mb-6 flex gap-4">
+            <div className="mb-6 flex gap-4">
               <div className="flex-1">
                 <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Dropoff Date</label>
-                <input type="date" name="dropoffDate" value={formData.dropoffDate} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" min={new Date().toISOString().split('T')[0]} required />
+                <input type="date" name="dropoffDate" value={formData.dropoffDate} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" min={formData.pickupDate || new Date().toISOString().split('T')[0]} required />
               </div>
               <div className="flex-1">
                 <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Dropoff Time</label>

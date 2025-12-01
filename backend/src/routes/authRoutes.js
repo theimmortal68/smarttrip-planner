@@ -134,12 +134,13 @@ router.get('/google', (req, res) => {
 });
 
 // GET /api/auth/google/callback  --> handle Google OAuth callback
+// GET /api/auth/google/callback  --> handle Google OAuth callback
 router.get('/google/callback', async (req, res, next) => {
   try {
     const { code } = req.query;
 
     if (!code) {
-      return res.status(400).send('Missing ?code from Google');
+      return res.status(400).send('Missing OAuth code');
     }
 
     // 1) Exchange code for tokens
@@ -176,28 +177,41 @@ router.get('/google/callback', async (req, res, next) => {
       { expiresIn: '45m' }
     );
 
+    // Also send back a "safe" user object for the frontend
+    const safeUser = {
+      id: user.id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      email: user.email,
+    };
+
     // 5) Tiny HTML page: store token in localStorage, redirect to frontend
     const frontendBase =
       process.env.FRONTEND_BASE_URL || 'http://localhost:5173';
-    const redirectUrl = `${frontendBase}/homepage`; // adjust if your frontend uses a different path
+    const redirectUrl = `${frontendBase}/homepage`;
 
-    res.send(`
-<!DOCTYPE html>
-<html>
-  <head><title>Signing you in...</title></head>
-  <body>
-    <script>
-      // Store JWT in localStorage
-      window.localStorage.setItem('smarttrip_token', ${JSON.stringify(token)});
-      // Redirect to the frontend
-      window.location.href = ${JSON.stringify(redirectUrl)};
-    </script>
-  </body>
-</html>
-    `);
-  } catch (err) {
-    next(err);
-  }
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Signing you in...</title></head>
+        <body>
+          <script>
+            // Store JWT and user info in localStorage
+            window.localStorage.setItem('token', ${JSON.stringify(token)});
+            window.localStorage.setItem('user', ${JSON.stringify(safeUser)});
+
+            // If you still have this somewhere, don't use it anymore:
+            // window.localStorage.setItem('smarttrip_token', ...);
+
+            // Redirect to the frontend
+            window.location.href = ${JSON.stringify(redirectUrl)};
+          </script>
+        </body>
+      </html>
+          `);
+    } catch (err) {
+      next(err);
+    }
 });
 
 // ============================================================================

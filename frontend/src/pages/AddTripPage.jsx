@@ -88,8 +88,8 @@ const AddTripPage = () => {
   }
   return (
     <>
-      <section className="bg-gray-50 min-h-screen py-6 sm:py-12 px-2 sm:px-4">
-      <div className="container m-auto max-w-2xl py-12 sm:py-24">
+      <section className="bg-gray-50 min-h-screen py-6 sm:py-8 px-2 sm:px-4">
+      <div className="container m-auto max-w-2xl py-4 sm:py-8">
         <div
           className="bg-white px-4 sm:px-8 py-6 sm:py-10 mb-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-lg m-2 sm:m-4 md:m-0"
         >
@@ -162,7 +162,7 @@ const AddTripPage = () => {
                 name="endDate"
                 value={endDate}
                 onChange={handleEndDateChange}
-                min={new Date().toISOString().split('T')[0]}
+                min={startDate || new Date().toISOString().split('T')[0]}
                 required
                 onBlur={(e) => {
                   const textValue = e.target.value

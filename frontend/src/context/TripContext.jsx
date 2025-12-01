@@ -1,8 +1,10 @@
+// Lodging data (array of lodgings) will be defined inside TripProvider
+
 import React, { createContext, useState, useEffect } from 'react'
-import {
-  getAllTrips,
-  createTrip as createTripAPI,
-  updateTrip as updateTripAPI,
+import { 
+  getAllTrips, 
+  createTrip as createTripAPI, 
+  updateTrip as updateTripAPI, 
   deleteTrip as deleteTripAPI,
   createItineraryItem,
   updateItineraryItem,
@@ -10,184 +12,9 @@ import {
   getItineraryItems
 } from '../utils/api'
 
+
 export const TripContext = createContext()
 
-// Helper: parse either "yyyy-mm-dd" or "mm/dd/yyyy" to Date
-const parseDate = (value) => {
-  if (!value) return null
-  // HTML date input -> "yyyy-mm-dd"
-  if (value.includes('-')) {
-    const d = new Date(value)
-    return isNaN(d.getTime()) ? null : d
-  }
-  // Form text dates -> "mm/dd/yyyy"
-  if (value.includes('/')) {
-    const [m, d, y] = value.split('/')
-    const dObj = new Date(`${y}-${m}-${d}`)
-    return isNaN(dObj.getTime()) ? null : dObj
-  }
-  const d = new Date(value)
-  return isNaN(d.getTime()) ? null : d
-}
-
-// Helper: compute dayIndex (1-based) from trip start date and item date
-const computeDayIndex = (tripStartDate, itemDate) => {
-  const tripStart = parseDate(tripStartDate)
-  const item = parseDate(itemDate)
-  if (!tripStart || !item) return 1
-
-  const msPerDay = 1000 * 60 * 60 * 24
-  const diff = Math.floor((item - tripStart) / msPerDay)
-  return diff < 0 ? 1 : diff + 1
-}
-
-// Helper: build itinerary payloads from the four pieces of data
-const buildItineraryItemsFromData = (trip, {
-  flightData,
-  carRentalData,
-  activityData,
-  lodgingData
-}) => {
-  const items = []
-  const tripStartDate = trip.startDate || trip.start_date
-
-  // Flights
-  if (flightData?.flights?.length) {
-    flightData.flights.forEach((flight, index) => {
-      const dayIndex = computeDayIndex(tripStartDate, flight.departure || flight.date)
-      const title = flight.customName || flight.flightNumber || `Flight ${index + 1}`
-
-      const descriptionLines = []
-      if (flight.airline) descriptionLines.push(`Airline: ${flight.airline}`)
-      if (flight.flightNumber) descriptionLines.push(`Flight: ${flight.flightNumber}`)
-      if (flight.seats) descriptionLines.push(`Seats: ${flight.seats}`)
-      const description = descriptionLines.join('\n') || 'Flight'
-
-      const notesLines = []
-      if (flightData.totalCost) {
-        notesLines.push(`Total Cost: ${flightData.totalCost}`)
-      }
-      const notes = notesLines.join('\n') || null
-
-      items.push({
-        dayIndex,
-        title,
-        description,
-        startTime: null,
-        endTime: null,
-        locationName: trip.location || trip.name || 'Flight',
-        activityType: 'Flight',
-        notes
-      })
-    })
-  }
-
-  // Car rental (single block)
-  if (carRentalData?.rentalAgency) {
-    const dayIndex = computeDayIndex(tripStartDate, carRentalData.pickupDate)
-    const descriptionLines = []
-
-    if (carRentalData.pickupDate || carRentalData.pickupTime) {
-      descriptionLines.push(
-        `Pickup: ${carRentalData.pickupDate || ''} ${carRentalData.pickupTime || ''}`.trim()
-      )
-    }
-    if (carRentalData.dropoffDate || carRentalData.dropoffTime) {
-      descriptionLines.push(
-        `Dropoff: ${carRentalData.dropoffDate || ''} ${carRentalData.dropoffTime || ''}`.trim()
-      )
-    }
-    if (carRentalData.confirmationNumber) {
-      descriptionLines.push(`Confirmation: ${carRentalData.confirmationNumber}`)
-    }
-    const description = descriptionLines.join('\n') || 'Car rental'
-
-    const notesLines = []
-    if (carRentalData.website) notesLines.push(`Website: ${carRentalData.website}`)
-    if (carRentalData.email) notesLines.push(`Email: ${carRentalData.email}`)
-    if (carRentalData.totalCost) notesLines.push(`Total Cost: ${carRentalData.totalCost}`)
-    const notes = notesLines.join('\n') || null
-
-    items.push({
-      dayIndex,
-      title: `Car Rental - ${carRentalData.rentalAgency}`,
-      description,
-      startTime: carRentalData.pickupTime || null,
-      endTime: carRentalData.dropoffTime || null,
-      locationName:
-        carRentalData.pickupLocation?.location ||
-        carRentalData.rentalAgency ||
-        (trip.location || trip.name || ''),
-      activityType: 'Car Rental',
-      notes
-    })
-  }
-
-  // Activities (one item per activity)
-  if (Array.isArray(activityData) && activityData.length > 0) {
-    activityData.forEach((activity) => {
-      const dayIndex = computeDayIndex(tripStartDate, activity.startDate)
-      const descriptionLines = []
-
-      if (activity.venue) descriptionLines.push(`Venue: ${activity.venue}`)
-      if (activity.address) descriptionLines.push(`Address: ${activity.address}`)
-      if (activity.phone) descriptionLines.push(`Phone: ${activity.phone}`)
-      const description = descriptionLines.join('\n') || activity.description || 'Activity'
-
-      const notesLines = []
-      if (activity.website) notesLines.push(`Website: ${activity.website}`)
-      if (activity.email) notesLines.push(`Email: ${activity.email}`)
-      if (activity.totalCost) notesLines.push(`Total Cost: ${activity.totalCost}`)
-      const notes = notesLines.join('\n') || null
-
-      items.push({
-        dayIndex,
-        title: activity.activityName || 'Activity',
-        description,
-        startTime: activity.startTime || null,
-        endTime: activity.endTime || null,
-        locationName: activity.venue || activity.location || (trip.location || trip.name || ''),
-        activityType: 'Activity',
-        notes
-      })
-    })
-  }
-
-  // Lodging (one item per lodging block)
-  if (Array.isArray(lodgingData) && lodgingData.length > 0) {
-    lodgingData.forEach((lodging) => {
-      const dayIndex = computeDayIndex(tripStartDate, lodging.startDate)
-      const descriptionLines = []
-
-      if (lodging.venue) descriptionLines.push(`Venue: ${lodging.venue}`)
-      if (lodging.address) descriptionLines.push(`Address: ${lodging.address}`)
-      if (lodging.phone) descriptionLines.push(`Phone: ${lodging.phone}`)
-      if (lodging.confirmationNumber) {
-        descriptionLines.push(`Confirmation: ${lodging.confirmationNumber}`)
-      }
-      const description = descriptionLines.join('\n') || 'Lodging'
-
-      const notesLines = []
-      if (lodging.website) notesLines.push(`Website: ${lodging.website}`)
-      if (lodging.email) notesLines.push(`Email: ${lodging.email}`)
-      if (lodging.totalCost) notesLines.push(`Total Cost: ${lodging.totalCost}`)
-      const notes = notesLines.join('\n') || null
-
-      items.push({
-        dayIndex,
-        title: lodging.lodgingName || 'Lodging',
-        description,
-        startTime: lodging.startTime || null,
-        endTime: lodging.endTime || null,
-        locationName: lodging.venue || lodging.location || (trip.location || trip.name || ''),
-        activityType: 'Lodging',
-        notes
-      })
-    })
-  }
-
-  return items
-}
 
 export const TripProvider = ({ children }) => {
   const [lodgingData, setLodgingData] = useState([])
@@ -230,13 +57,23 @@ export const TripProvider = ({ children }) => {
   const [selectedTrip, setSelectedTrip] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+<<<<<<< HEAD
+=======
+  
+  // Trip members state - keyed by tripId
+  const [tripMembers, setTripMembers] = useState({})
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
 
   // Load trips from backend when component mounts
   useEffect(() => {
     const loadTrips = async () => {
       const token = localStorage.getItem('token')
       if (!token) return // Skip if not authenticated
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       setLoading(true)
       setError(null)
       try {
@@ -253,11 +90,15 @@ export const TripProvider = ({ children }) => {
     loadTrips()
   }, [])
 
+<<<<<<< HEAD
   // Create a new trip + itinerary
+=======
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
   const addTrip = async (tripData) => {
     setLoading(true)
     setError(null)
     try {
+<<<<<<< HEAD
       // Extract itinerary data from tripData if provided,
       // otherwise fall back to context state.
       const {
@@ -320,6 +161,79 @@ export const TripProvider = ({ children }) => {
       setError(err.message)
 
       // Fallback: local-only trip if backend fails
+=======
+      // Extract itinerary data from tripData
+      const { flightData, carRentalData, activityData, lodgingData, ...basicTripData } = tripData
+      
+      // Call backend API to create trip (without itinerary items)
+      const newTrip = await createTripAPI(basicTripData)
+      
+      // Now create itinerary items for the newly created trip
+      const tripId = newTrip.id
+      
+      // Create flight itinerary items
+      if (flightData?.flights?.length > 0) {
+        for (const flight of flightData.flights) {
+          await createItineraryItem(tripId, {
+            item_type: 'flight',
+            item_name: flight.customName || `Flight ${flight.id}`,
+            start_date: flight.departure,
+            details: {
+              airline: flight.airline,
+              flightNumber: flight.flightNumber,
+              seats: flight.seats,
+              totalCost: flightData.totalCost
+            }
+          })
+        }
+      }
+      
+      // Create car rental itinerary item
+      if (carRentalData?.rentalAgency) {
+        await createItineraryItem(tripId, {
+          item_type: 'car_rental',
+          item_name: `Car Rental - ${carRentalData.rentalAgency}`,
+          start_date: carRentalData.pickupDate,
+          end_date: carRentalData.dropoffDate,
+          details: carRentalData
+        })
+      }
+      
+      // Create activity itinerary items
+      if (activityData?.length > 0) {
+        for (const activity of activityData) {
+          await createItineraryItem(tripId, {
+            item_type: 'activity',
+            item_name: activity.activityName,
+            start_date: activity.startDate,
+            end_date: activity.endDate,
+            details: activity
+          })
+        }
+      }
+      
+      // Create lodging itinerary items
+      if (lodgingData?.length > 0) {
+        for (const lodging of lodgingData) {
+          await createItineraryItem(tripId, {
+            item_type: 'lodging',
+            item_name: lodging.lodgingName,
+            start_date: lodging.startDate,
+            end_date: lodging.endDate,
+            details: lodging
+          })
+        }
+      }
+      
+      // Update local state with the trip returned from backend
+      setUpcomingTrips(prev => [newTrip, ...prev])
+      return newTrip
+    } catch (err) {
+      console.error('Failed to create trip:', err)
+      setError(err.message)
+      
+      // Fallback to local state if backend fails
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       const localTrip = {
         id: Date.now(),
         ...tripData,
@@ -335,6 +249,7 @@ export const TripProvider = ({ children }) => {
   // Update an existing trip by id
   const updateTrip = async (updatedTrip) => {
     if (!updatedTrip || !updatedTrip.id) return
+<<<<<<< HEAD
 
     setLoading(true)
     setError(null)
@@ -344,15 +259,32 @@ export const TripProvider = ({ children }) => {
       setUpcomingTrips(prev =>
         prev.map(t => (t.id === updated.id ? updated : t))
       )
+=======
+    
+    setLoading(true)
+    setError(null)
+    try {
+      // Call backend API to update trip
+      const updated = await updateTripAPI(updatedTrip.id, updatedTrip)
+      
+      // Update local state with the trip returned from backend
+      setUpcomingTrips(prev => prev.map(t => t.id === updated.id ? updated : t))
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       return updated
     } catch (err) {
       console.error('Failed to update trip:', err)
       setError(err.message)
+<<<<<<< HEAD
 
       // Fallback to local state update if backend fails
       setUpcomingTrips(prev =>
         prev.map(t => (t.id === updatedTrip.id ? updatedTrip : t))
       )
+=======
+      
+      // Fallback to local state update if backend fails
+      setUpcomingTrips(prev => prev.map(t => t.id === updatedTrip.id ? updatedTrip : t))
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       return updatedTrip
     } finally {
       setLoading(false)
@@ -364,8 +296,15 @@ export const TripProvider = ({ children }) => {
     setLoading(true)
     setError(null)
     try {
+<<<<<<< HEAD
       await deleteTripAPI(tripId)
 
+=======
+      // Call backend API to delete trip
+      await deleteTripAPI(tripId)
+      
+      // Update local state to remove the trip
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       setUpcomingTrips(prev => prev.filter(t => t.id !== tripId))
       return true
     } catch (err) {
@@ -378,28 +317,115 @@ export const TripProvider = ({ children }) => {
   }
 
   // Load itinerary items for a specific trip
+<<<<<<< HEAD
   // Returns array of: { id, dayIndex, title, description, startTime, endTime, locationName, activityType, notes }
+=======
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
   const loadItineraryItems = async (tripId) => {
     setLoading(true)
     setError(null)
     try {
       const items = await getItineraryItems(tripId)
+<<<<<<< HEAD
       return items
     } catch (err) {
       console.error('Failed to load itinerary items:', err)
       setError(err.message)
       return []
+=======
+      
+      // Parse itinerary items into their respective categories
+      const flights = []
+      let carRental = null
+      const activities = []
+      const lodgings = []
+      
+      items.forEach(item => {
+        switch (item.item_type) {
+          case 'flight':
+            flights.push({
+              id: item.id,
+              customName: item.item_name,
+              departure: item.start_date,
+              ...item.details
+            })
+            break
+          case 'car_rental':
+            carRental = {
+              id: item.id,
+              ...item.details
+            }
+            break
+          case 'activity':
+            activities.push({
+              id: item.id,
+              activityName: item.item_name,
+              startDate: item.start_date,
+              endDate: item.end_date,
+              ...item.details
+            })
+            break
+          case 'lodging':
+            lodgings.push({
+              id: item.id,
+              lodgingName: item.item_name,
+              startDate: item.start_date,
+              endDate: item.end_date,
+              ...item.details
+            })
+            break
+          default:
+            break
+        }
+      })
+      
+      // Update context state
+      if (flights.length > 0) {
+        setFlightData({ flights, totalCost: flights[0]?.totalCost || '' })
+      }
+      if (carRental) {
+        setCarRentalData(carRental)
+      }
+      if (activities.length > 0) {
+        setActivityData(activities)
+      }
+      if (lodgings.length > 0) {
+        setLodgingData(lodgings)
+      }
+      
+      return { flights, carRental, activities, lodgings }
+    } catch (err) {
+      console.error('Failed to load itinerary items:', err)
+      setError(err.message)
+      return null
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
     } finally {
       setLoading(false)
     }
   }
 
+<<<<<<< HEAD
   // Add a single itinerary item (for adding to existing trip via generic form)
   const addItineraryItem = async (tripId, itemData) => {
     setLoading(true)
     setError(null)
     try {
       const newItem = await createItineraryItem(tripId, itemData)
+=======
+  // Add a single itinerary item (for adding items to existing trips)
+  const addItineraryItem = async (tripId, itemType, itemData) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const newItem = await createItineraryItem(tripId, {
+        item_type: itemType,
+        item_name: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
+        start_date: itemData.startDate || itemData.departure || itemData.pickupDate,
+        end_date: itemData.endDate || itemData.dropoffDate,
+        details: itemData
+      })
+      
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       return newItem
     } catch (err) {
       console.error('Failed to add itinerary item:', err)
@@ -411,11 +437,26 @@ export const TripProvider = ({ children }) => {
   }
 
   // Update a single itinerary item
+<<<<<<< HEAD
   const updateSingleItineraryItem = async (tripId, itemId, itemData) => {
     setLoading(true)
     setError(null)
     try {
       const updatedItem = await updateItineraryItem(tripId, itemId, itemData)
+=======
+  const updateSingleItineraryItem = async (tripId, itemId, itemType, itemData) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const updatedItem = await updateItineraryItem(tripId, itemId, {
+        item_type: itemType,
+        item_name: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
+        start_date: itemData.startDate || itemData.departure || itemData.pickupDate,
+        end_date: itemData.endDate || itemData.dropoffDate,
+        details: itemData
+      })
+      
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       return updatedItem
     } catch (err) {
       console.error('Failed to update itinerary item:', err)
@@ -479,6 +520,7 @@ export const TripProvider = ({ children }) => {
   }
 
   return (
+<<<<<<< HEAD
     <TripContext.Provider
       value={{
         flightData,
@@ -505,8 +547,39 @@ export const TripProvider = ({ children }) => {
         deleteSingleItineraryItem
       }}
     >
+=======
+    <TripContext.Provider value={{
+      flightData,
+      setFlightData,
+      carRentalData,
+      setCarRentalData,
+      activityData,
+      setActivityData,
+      lodgingData,
+      setLodgingData,
+      upcomingTrips,
+      addTrip,
+      updateTrip,
+      deleteTrip,
+      clearFlightData,
+      clearCarRentalData,
+      selectedTrip,
+      setSelectedTrip,
+      loading,
+      error,
+      loadItineraryItems,
+      addItineraryItem,
+      updateSingleItineraryItem,
+      deleteSingleItineraryItem,
+      tripMembers,
+      setTripMembers
+    }}>
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       {children}
     </TripContext.Provider>
   )
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8

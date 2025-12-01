@@ -9,6 +9,7 @@ const AddLodging = () => {
 
   const [form, setForm] = useState({
     lodgingName: '',
+    propertyType: '',
     startDate: '',
     startTime: '',
     endDate: '',
@@ -19,12 +20,19 @@ const AddLodging = () => {
     website: '',
     email: '',
     confirmationNumber: '',
+    numberOfRooms: '',
+    numberOfBeds: '',
+    numberOfGuests: '',
+    pricePerRoom: '',
+    nightlyRate: '',
+    numberOfNights: '',
     totalCost: ''
   })
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    if (name === 'totalCost') {
+    // Validate numeric fields
+    if (['totalCost', 'pricePerRoom', 'nightlyRate', 'numberOfNights', 'numberOfRooms', 'numberOfBeds', 'numberOfGuests'].includes(name)) {
       if (!/^[0-9.]*$/.test(value)) return
     }
     setForm(prev => ({ ...prev, [name]: value }))
@@ -35,6 +43,7 @@ const AddLodging = () => {
     setLodgingData(prev => [...prev, { ...form, id: Date.now() }])
     setForm({
       lodgingName: '',
+      propertyType: '',
       startDate: '',
       startTime: '',
       endDate: '',
@@ -45,6 +54,12 @@ const AddLodging = () => {
       website: '',
       email: '',
       confirmationNumber: '',
+      numberOfRooms: '',
+      numberOfBeds: '',
+      numberOfGuests: '',
+      pricePerRoom: '',
+      nightlyRate: '',
+      numberOfNights: '',
       totalCost: ''
     })
     // Navigate to edit-trip if editing, otherwise add-trip
@@ -68,6 +83,21 @@ const AddLodging = () => {
               <input type="text" name="lodgingName" value={form.lodgingName} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Lodging Name" />
             </div>
 
+            {/* Property Type */}
+            <div className="mb-4 sm:mb-6">
+              <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Property Type</label>
+              <select name="propertyType" value={form.propertyType} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                <option value="">Select Property Type</option>
+                <option value="hotel">Hotel</option>
+                <option value="airbnb">Airbnb</option>
+                <option value="resort">Resort</option>
+                <option value="hostel">Hostel</option>
+                <option value="motel">Motel</option>
+                <option value="camping">Camping</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
             {/* Start Date & Time */}
             <div className="mb-4 sm:mb-6 flex gap-4">
               <div className="flex-1">
@@ -84,7 +114,7 @@ const AddLodging = () => {
             <div className="mb-4 sm:mb-6 flex gap-4">
               <div className="flex-1">
                 <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">End Date</label>
-                <input type="date" name="endDate" value={form.endDate} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" min={new Date().toISOString().split('T')[0]} required />
+                <input type="date" name="endDate" value={form.endDate} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" min={form.startDate || new Date().toISOString().split('T')[0]} required />
               </div>
               <div className="flex-1">
                 <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">End Time</label>
@@ -126,6 +156,42 @@ const AddLodging = () => {
             <div className="mb-4 sm:mb-6">
               <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Confirmation Number</label>
               <input type="text" name="confirmationNumber" value={form.confirmationNumber} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Confirmation number" />
+            </div>
+
+            {/* Number of Rooms & Number of Beds */}
+            <div className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Number of Rooms</label>
+                <input type="text" name="numberOfRooms" value={form.numberOfRooms} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Number of rooms" />
+              </div>
+              <div>
+                <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Number of Beds</label>
+                <input type="text" name="numberOfBeds" value={form.numberOfBeds} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Number of beds" />
+              </div>
+            </div>
+
+            {/* Number of Guests */}
+            <div className="mb-4 sm:mb-6">
+              <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Number of Guests</label>
+              <input type="text" name="numberOfGuests" value={form.numberOfGuests} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Number of guests" />
+            </div>
+
+            {/* Number of Nights */}
+            <div className="mb-4 sm:mb-6">
+              <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Number of Nights</label>
+              <input type="text" name="numberOfNights" value={form.numberOfNights} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Number of nights" />
+            </div>
+
+            {/* Price Per Room & Nightly Rate */}
+            <div className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Price Per Room</label>
+                <input type="text" name="pricePerRoom" value={form.pricePerRoom} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Price per room" />
+              </div>
+              <div>
+                <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Nightly Rate</label>
+                <input type="text" name="nightlyRate" value={form.nightlyRate} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Nightly rate" />
+              </div>
             </div>
 
             {/* Total Cost */}

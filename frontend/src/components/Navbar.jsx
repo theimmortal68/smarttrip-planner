@@ -1,20 +1,30 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { FaUser, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa'
-import logo from '../assets/images/logo.png'
 
 const Navbar = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const dropdownRef = useRef(null)
   const mobileMenuRef = useRef(null)
 
-  // Placeholder user data (will be replaced with real auth data later)
-  const user = {
-    firstName: 'John',
-    lastName: 'Doe'
-  }
+  // Check if we're on login or signup page
+  const isAuthPage = location.pathname === '/' || location.pathname === '/signup'
+
+  // Get user data from localStorage (set by LoginPage or ProfilePage)
+  // eslint-disable-next-line no-unused-vars
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('user')
+    return stored ? JSON.parse(stored) : { firstName: 'User', lastName: '' }
+  })
+
+  // COMMENTED OUT: Hardcoded placeholder data
+  // const user = {
+  //   firstName: 'John',
+  //   lastName: 'Doe'
+  // }
 
   // Close dropdown and mobile menu when clicking outside
   useEffect(() => {
@@ -31,7 +41,14 @@ const Navbar = () => {
   }, [])
 
   const handleLogout = () => {
+<<<<<<< HEAD
     // TODO: Add actual logout logic with backend call
+=======
+    // Clear token and user data from localStorage
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    // TODO: Add actual logout logic with backend call if needed
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
     console.log('Logging out')
     navigate('/')
   }
@@ -47,16 +64,33 @@ const Navbar = () => {
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <NavLink className="flex flex-shrink-0 items-center" to="/homepage">
+<<<<<<< HEAD
             <img
               className="h-10 w-auto"
               src={logo}
               alt="SmartTrip Planner"
             />
+=======
+            <div className="bg-white border-4 border-black rounded-full p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
+              <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" />
+              </svg>
+            </div>
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
             <span className="hidden sm:block text-white text-xl sm:text-2xl font-black uppercase ml-2"
               >SmarTrip Planner</span
             >
           </NavLink>
 
+<<<<<<< HEAD
+=======
+          {/* Mobile Title - Centered */}
+          <span className="sm:hidden text-white text-lg font-black uppercase absolute left-1/2 transform -translate-x-1/2"
+            >SMARTRIP</span
+          >
+
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-2">
             <NavLink
@@ -76,6 +110,10 @@ const Navbar = () => {
             </NavLink>
 
             {/* Profile Button with Dropdown - Desktop */}
+<<<<<<< HEAD
+=======
+            {!isAuthPage && (
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
             <div className="relative ml-4" ref={dropdownRef}>
               <button
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
@@ -113,6 +151,10 @@ const Navbar = () => {
                 </div>
               )}
             </div>
+<<<<<<< HEAD
+=======
+            )}
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
           </div>
 
           {/* Mobile Hamburger Button */}
@@ -171,6 +213,10 @@ const Navbar = () => {
             </NavLink>
 
             {/* Mobile Profile Section */}
+<<<<<<< HEAD
+=======
+            {!isAuthPage && (
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
             <div className="pt-4 border-t-4 border-black space-y-3">
               <div className="px-4 py-2">
                 <p className="font-black text-white uppercase text-sm">Signed in as</p>
@@ -195,6 +241,10 @@ const Navbar = () => {
                 <FaSignOutAlt /> Log Out
               </button>
             </div>
+<<<<<<< HEAD
+=======
+            )}
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
           </div>
         </div>
       )}

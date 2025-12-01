@@ -12,24 +12,24 @@ const Homepage = () => {
 
   return (
     <>
-      {/* Main viewport section with Hero and AddTrip */}
-      <div className={hasTrips ? "min-h-[calc(100vh-80px)] flex flex-col" : ""}>
+      {/* Main viewport section with Hero and AddTrip - always fits in viewport */}
+      <div className="relative h-[calc(100vh-80px)] overflow-hidden">
         <Hero title="Plan Your Next Trip" subtitle="Keep track of all your past, current and upcoming trips!"/>
-        
-        {/* Spacer to push AddTrip down */}
-        {hasTrips && <div className="flex-grow"></div>}
-        
         <AddTrip/>
         
-        {/* Scroll hint - only show if there are trips */}
+        {/* Neo-brutalist "Upcoming Trips" label - only show if there are trips */}
         {hasTrips && (
-          <div className="text-center pb-6 pt-8">
-            <div className="inline-block animate-bounce">
-              <svg className="w-6 h-6 text-gray-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-              </svg>
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="bg-yellow-300 border-3 border-black rounded-lg px-3 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] inline-flex items-center gap-2 rotate-1">
+              <p className="text-xs sm:text-sm font-black text-black uppercase">
+                Upcoming Trips
+              </p>
+              <div className="animate-bounce">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+              </div>
             </div>
-            <p className="text-sm font-bold text-gray-600 mt-2">UPCOMING TRIPS</p>
           </div>
         )}
       </div>

@@ -18,8 +18,15 @@ const RecentUpcomingTrips = () => {
     return endDate >= today
   })
 
+  // Sort by start date (closest to today first)
+  const sortedTrips = [...futureTrips].sort((a, b) => {
+    const dateA = new Date(a.startDate)
+    const dateB = new Date(b.startDate)
+    return dateA - dateB
+  })
+
   // Limit Trips to 3 on homepage
-  const recentTrips = futureTrips.slice(0, 3)
+  const recentTrips = sortedTrips.slice(0, 3)
 
   const handleViewTrip = (trip) => {
     setSelectedTrip(trip)
@@ -33,12 +40,20 @@ const RecentUpcomingTrips = () => {
 
   return (
     <section className="bg-gray-50 px-4 py-10">
+<<<<<<< HEAD
       <div className="max-w-4xl mx-auto px-2 sm:px-4 m-auto">
         <h2 className="text-3xl sm:text-4xl font-black uppercase text-black mb-6 sm:mb-8 text-center">
           Upcoming Trips
         </h2>
         <div className="flex justify-center">
           <div className="w-full max-w-md space-y-4 sm:space-y-6">
+=======
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 m-auto">
+        <h2 className="text-3xl sm:text-4xl font-black uppercase text-black mb-6 sm:mb-8 text-center">
+          Recent Upcoming Trips
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
             {recentTrips.map((trip) => (
               <div key={trip.id}>
                 {/* Neo Brutalism Card */}
@@ -53,6 +68,7 @@ const RecentUpcomingTrips = () => {
                     <p className="font-mono text-xs sm:text-sm text-gray-800 break-all">{trip.startDate} → {trip.endDate}</p>
                   </div>
 
+<<<<<<< HEAD
                   {trip.description && (
                     <div className="mb-4 p-2 sm:p-3 bg-gray-100 border-2 border-black rounded">
                       <p className="text-xs font-black uppercase mb-1">Description</p>
@@ -99,6 +115,63 @@ const RecentUpcomingTrips = () => {
                       ))}
                     </div>
                   )}
+=======
+                  {/* Days until trip counter */}
+                  {(() => {
+                    const startDate = new Date(trip.startDate)
+                    const daysUntil = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24))
+                    
+                    if (daysUntil < 0) {
+                      return (
+                        <div className="mb-4 p-2 sm:p-3 bg-green-300 border-4 border-black rounded shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                          <p className="text-xs sm:text-sm font-black uppercase text-black">🎉 Trip In Progress!</p>
+                        </div>
+                      )
+                    } else if (daysUntil === 0) {
+                      return (
+                        <div className="mb-4 p-2 sm:p-3 bg-yellow-300 border-4 border-black rounded shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                          <p className="text-xs sm:text-sm font-black uppercase text-black">🚀 Trip Starts Today!</p>
+                        </div>
+                      )
+                    } else if (daysUntil === 1) {
+                      return (
+                        <div className="mb-4 p-2 sm:p-3 bg-orange-300 border-4 border-black rounded shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                          <p className="text-xs sm:text-sm font-black uppercase text-black">⏰ Trip Starts Tomorrow!</p>
+                        </div>
+                      )
+                    } else {
+                      return (
+                        <div className="mb-4 p-2 sm:p-3 bg-pink-300 border-4 border-black rounded shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                          <p className="text-xs sm:text-sm font-black uppercase text-black">🕒 In {daysUntil} Days</p>
+                        </div>
+                      )
+                    }
+                  })()}
+
+                  {/* Summary badges for itinerary items */}
+                  <div className="mb-4 flex flex-wrap gap-2 min-h-[60px] sm:min-h-[80px] items-start content-start">
+                    {trip.flightData && trip.flightData.flights.length > 0 && (
+                      <span className="bg-blue-400 border-2 border-black px-3 py-1 rounded font-black text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        ✈️ {trip.flightData.flights.length} {trip.flightData.flights.length === 1 ? 'Flight' : 'Flights'}
+                      </span>
+                    )}
+                    {trip.carRentalData && trip.carRentalData.rentalAgency && (
+                      <span className="bg-green-400 border-2 border-black px-3 py-1 rounded font-black text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        🚗 Car Rental
+                      </span>
+                    )}
+                    {trip.lodgingData && trip.lodgingData.length > 0 && (
+                      <span className="bg-purple-400 border-2 border-black px-3 py-1 rounded font-black text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        🏨 {trip.lodgingData.length} {trip.lodgingData.length === 1 ? 'Lodging' : 'Lodgings'}
+                      </span>
+                    )}
+                    {trip.activityData && trip.activityData.length > 0 && (
+                      <span className="bg-yellow-400 border-2 border-black px-3 py-1 rounded font-black text-xs uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        🗓️ {trip.activityData.length} {trip.activityData.length === 1 ? 'Activity' : 'Activities'}
+                      </span>
+                    )}
+                  </div>
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
 
                   {/* View Trip Button */}
                   <button
@@ -117,7 +190,10 @@ const RecentUpcomingTrips = () => {
                 </div>
               </div>
             ))}
+<<<<<<< HEAD
           </div>
+=======
+>>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
         </div>
       </div>
     </section>

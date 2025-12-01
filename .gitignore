@@ -26,3 +26,4 @@ frontend/.env
 .vscode/
 .idea/
 .DS_Store
+frontend_local_backup/
