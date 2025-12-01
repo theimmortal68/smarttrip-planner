@@ -8,10 +8,16 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true)
   
   // User data from backend or localStorage
-  const [user, setUser] = useState(() => {
+const [user, setUser] = useState(() => {
+  try {
     const stored = localStorage.getItem('user')
     return stored ? JSON.parse(stored) : null
-  })
+  } catch (err) {
+    console.error('Invalid user in localStorage:', err, localStorage.getItem('user'))
+    localStorage.removeItem('user')
+    return null
+  }
+})
 
   // Fetch fresh user data from backend
   useEffect(() => {

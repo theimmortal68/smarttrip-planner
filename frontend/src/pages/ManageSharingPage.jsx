@@ -86,10 +86,15 @@ const ManageSharingPage = () => {
       // Fetch current user from localStorage (set by LoginPage/ProfilePage)
       const storedUser = localStorage.getItem('user')
       if (storedUser) {
-        const user = JSON.parse(storedUser)
-        setCurrentUser(user)
+        try {
+          const user = JSON.parse(storedUser)
+          setCurrentUser(user)
+        } catch (err) {
+          console.error('Invalid user in localStorage (ManageSharingPage loadData):', err, storedUser)
+          localStorage.removeItem('user')
+        }
       }
-
+      
       // For testing without backend: show error but don't redirect
       if (!token) {
         setError('Backend not connected - member management requires authentication')
@@ -142,10 +147,17 @@ const ManageSharingPage = () => {
 
       // Set current user's role from members list
       if (storedUser) {
-        const user = JSON.parse(storedUser)
-        const userMember = membersData.find(m => m.user_id === user.id)
-        setCurrentUserRole(userMember?.role || null)
+        try {
+          const user = JSON.parse(storedUser)
+          const userMember = membersData.find(m => m.user_id === user.id)
+          setCurrentUserRole(userMember?.role || null)
+        } catch (err) {
+          console.error('Invalid user in localStorage (ManageSharingPage role):', err, storedUser)
+          localStorage.removeItem('user')
+          setCurrentUserRole(null)
+        }
       }
+      
     } catch (err) {
       console.error('Error loading data:', err)
       setError(err.message || 'Failed to load data')
