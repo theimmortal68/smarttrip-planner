@@ -198,16 +198,16 @@ router.get('/google/callback', async (req, res, next) => {
         <head><title>Signing you in...</title></head>
         <body>
           <script>
-            // Store JWT and user info in localStorage
-            window.localStorage.setItem('token', ${JSON.stringify(token)});
-            window.localStorage.setItem('user', ${JSON.stringify(JSON.stringify(safeUser))});
-
-            // Redirect to the frontend
+            const token = ${JSON.stringify(token)};
+            const user = ${JSON.stringify(safeUser)};
+            
+            window.localStorage.setItem('token', token);
+            window.localStorage.setItem('user', JSON.stringify(user));
             window.location.href = ${JSON.stringify(redirectUrl)};
           </script>
         </body>
       </html>
-          `);
+    `);
     } catch (err) {
       next(err);
     }
