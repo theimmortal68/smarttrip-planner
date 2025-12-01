@@ -147,9 +147,17 @@ const ManageSharingPage = () => {
 
       // Set current user's role from members list
       if (storedUser) {
-        const user = JSON.parse(storedUser)
-        const userMember = membersData.find(m => m.user_id === user.id)
-        setCurrentUserRole(userMember?.role || null)
+        try {
+          const user = JSON.parse(storedUser)
+          const userMember = membersData.find(m => m.user_id === user.id)
+          setCurrentUserRole(userMember?.role || null)
+        } catch (err) {
+          console.error(
+            'Invalid user in localStorage when setting role, clearing it',
+            err
+          )
+          localStorage.removeItem('user')
+        }
       }
     } catch (err) {
       console.error('Error loading data:', err)
