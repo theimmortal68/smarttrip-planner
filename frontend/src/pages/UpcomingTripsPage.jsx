@@ -43,25 +43,20 @@ const UpcomingTripsPage = () => {
       // Get current user from localStorage (set by LoginPage/ProfilePage)
       const storedUser = localStorage.getItem('user')
       if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser)
-          // Transform to match expected format (firstName -> first_name)
-          setCurrentUser({
-            id: user.id,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            email: user.email
-          })
-        } catch (err) {
-          console.error('Invalid user in localStorage (UpcomingTripsPage):', err, storedUser)
-          localStorage.removeItem('user')
-        }
+        const user = JSON.parse(storedUser)
+        // Transform to match expected format (firstName -> first_name)
+        setCurrentUser({
+          id: user.id,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          email: user.email
+        })
       }
     } catch (err) {
       console.error('Error loading current user:', err)
     }
   }
-  
+
   const loadTripMembers = async () => {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -77,7 +72,7 @@ const UpcomingTripsPage = () => {
       try {
         // Fetch trip members from backend
         // Backend should return: [{ id, user_id, first_name, last_name, email, role }, ...]
-        const res = await fetch(`/api/trips/${trip.id}/members`, {
+        const res = await fetch(`http://localhost:3000/api/trips/${trip.id}/members`, {
           method: 'GET',
           headers: { 
             'Authorization': `Bearer ${token}`,

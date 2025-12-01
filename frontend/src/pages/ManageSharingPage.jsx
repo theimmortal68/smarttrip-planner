@@ -86,15 +86,10 @@ const ManageSharingPage = () => {
       // Fetch current user from localStorage (set by LoginPage/ProfilePage)
       const storedUser = localStorage.getItem('user')
       if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser)
-          setCurrentUser(user)
-        } catch (err) {
-          console.error('Invalid user in localStorage (ManageSharingPage loadData):', err, storedUser)
-          localStorage.removeItem('user')
-        }
+        const user = JSON.parse(storedUser)
+        setCurrentUser(user)
       }
-      
+
       // For testing without backend: show error but don't redirect
       if (!token) {
         setError('Backend not connected - member management requires authentication')
@@ -104,7 +99,7 @@ const ManageSharingPage = () => {
 
       // Fetch trip members
       // Backend should return: [{ id, user_id, first_name, last_name, email, role }, ...]
-      const membersRes = await fetch(`/api/trips/${tripId}/members`, {
+      const membersRes = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -122,7 +117,7 @@ const ManageSharingPage = () => {
 
       // Fetch all users for search
       // Backend should return: [{ id, firstName, lastName, email }, ...]
-      const usersRes = await fetch('/api/users', {
+      const usersRes = await fetch('http://localhost:3000/api/users', {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -147,17 +142,10 @@ const ManageSharingPage = () => {
 
       // Set current user's role from members list
       if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser)
-          const userMember = membersData.find(m => m.user_id === user.id)
-          setCurrentUserRole(userMember?.role || null)
-        } catch (err) {
-          console.error('Invalid user in localStorage (ManageSharingPage role):', err, storedUser)
-          localStorage.removeItem('user')
-          setCurrentUserRole(null)
-        }
+        const user = JSON.parse(storedUser)
+        const userMember = membersData.find(m => m.user_id === user.id)
+        setCurrentUserRole(userMember?.role || null)
       }
-      
     } catch (err) {
       console.error('Error loading data:', err)
       setError(err.message || 'Failed to load data')
@@ -178,7 +166,7 @@ const ManageSharingPage = () => {
 
       // Add trip member
       // Backend should accept: { email: string, role: string }
-      const res = await fetch(`/api/trips/${tripId}/members`, {
+      const res = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -196,7 +184,7 @@ const ManageSharingPage = () => {
       }
 
       // Refresh members list
-      const membersRes = await fetch(`/api/trips/${tripId}/members`, {
+      const membersRes = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -239,7 +227,7 @@ const ManageSharingPage = () => {
       }
 
       // Remove trip member
-      const res = await fetch(`/api/trips/${tripId}/members/${memberId}`, {
+      const res = await fetch(`http://localhost:3000/api/trips/${tripId}/members/${memberId}`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -253,7 +241,7 @@ const ManageSharingPage = () => {
       }
 
       // Refresh members list
-      const membersRes = await fetch(`/api/trips/${tripId}/members`, {
+      const membersRes = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -287,7 +275,7 @@ const ManageSharingPage = () => {
 
       // Update member role
       // Backend should accept: { role: string }
-      const res = await fetch(`/api/trips/${tripId}/members/${memberId}`, {
+      const res = await fetch(`http://localhost:3000/api/trips/${tripId}/members/${memberId}`, {
         method: 'PATCH',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -302,7 +290,7 @@ const ManageSharingPage = () => {
       }
 
       // Refresh members list
-      const membersRes = await fetch(`/api/trips/${tripId}/members`, {
+      const membersRes = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,

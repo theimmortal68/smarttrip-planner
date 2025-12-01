@@ -57,23 +57,16 @@ export const TripProvider = ({ children }) => {
   const [selectedTrip, setSelectedTrip] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-<<<<<<< HEAD
-=======
   
   // Trip members state - keyed by tripId
   const [tripMembers, setTripMembers] = useState({})
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
 
   // Load trips from backend when component mounts
   useEffect(() => {
     const loadTrips = async () => {
       const token = localStorage.getItem('token')
       if (!token) return // Skip if not authenticated
-<<<<<<< HEAD
-
-=======
       
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       setLoading(true)
       setError(null)
       try {
@@ -90,78 +83,10 @@ export const TripProvider = ({ children }) => {
     loadTrips()
   }, [])
 
-<<<<<<< HEAD
-  // Create a new trip + itinerary
-=======
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
   const addTrip = async (tripData) => {
     setLoading(true)
     setError(null)
     try {
-<<<<<<< HEAD
-      // Extract itinerary data from tripData if provided,
-      // otherwise fall back to context state.
-      const {
-        flightData: fd,
-        carRentalData: cd,
-        activityData: ad,
-        lodgingData: ld,
-        ...basicTripData
-      } = tripData
-
-      const newTrip = await createTripAPI(basicTripData)
-
-      const itineraryItems = buildItineraryItemsFromData(newTrip, {
-        flightData: fd ?? flightData,
-        carRentalData: cd ?? carRentalData,
-        activityData: ad ?? activityData,
-        lodgingData: ld ?? lodgingData
-      })
-
-      for (const item of itineraryItems) {
-        await createItineraryItem(newTrip.id, item)
-      }
-
-      setUpcomingTrips(prev => [newTrip, ...prev])
-
-      // Optionally clear itinerary-related state after save
-      setFlightData({ flights: [], totalCost: '' })
-      setCarRentalData({
-        rentalAgency: '',
-        pickupDate: '',
-        pickupTime: '',
-        dropoffDate: '',
-        dropoffTime: '',
-        website: '',
-        email: '',
-        confirmationNumber: '',
-        totalCost: '',
-        pickupLocation: {
-          location: '',
-          address: '',
-          phone: ''
-        },
-        dropoffLocation: {
-          location: '',
-          address: '',
-          phone: ''
-        },
-        rentalInfo: {
-          carType: '',
-          mileageCharges: '',
-          carDetails: ''
-        }
-      })
-      setActivityData([])
-      setLodgingData([])
-
-      return newTrip
-    } catch (err) {
-      console.error('Failed to create trip (or itinerary):', err)
-      setError(err.message)
-
-      // Fallback: local-only trip if backend fails
-=======
       // Extract itinerary data from tripData
       const { flightData, carRentalData, activityData, lodgingData, ...basicTripData } = tripData
       
@@ -233,7 +158,6 @@ export const TripProvider = ({ children }) => {
       setError(err.message)
       
       // Fallback to local state if backend fails
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       const localTrip = {
         id: Date.now(),
         ...tripData,
@@ -249,17 +173,6 @@ export const TripProvider = ({ children }) => {
   // Update an existing trip by id
   const updateTrip = async (updatedTrip) => {
     if (!updatedTrip || !updatedTrip.id) return
-<<<<<<< HEAD
-
-    setLoading(true)
-    setError(null)
-    try {
-      const updated = await updateTripAPI(updatedTrip.id, updatedTrip)
-
-      setUpcomingTrips(prev =>
-        prev.map(t => (t.id === updated.id ? updated : t))
-      )
-=======
     
     setLoading(true)
     setError(null)
@@ -269,22 +182,13 @@ export const TripProvider = ({ children }) => {
       
       // Update local state with the trip returned from backend
       setUpcomingTrips(prev => prev.map(t => t.id === updated.id ? updated : t))
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       return updated
     } catch (err) {
       console.error('Failed to update trip:', err)
       setError(err.message)
-<<<<<<< HEAD
-
-      // Fallback to local state update if backend fails
-      setUpcomingTrips(prev =>
-        prev.map(t => (t.id === updatedTrip.id ? updatedTrip : t))
-      )
-=======
       
       // Fallback to local state update if backend fails
       setUpcomingTrips(prev => prev.map(t => t.id === updatedTrip.id ? updatedTrip : t))
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       return updatedTrip
     } finally {
       setLoading(false)
@@ -296,15 +200,10 @@ export const TripProvider = ({ children }) => {
     setLoading(true)
     setError(null)
     try {
-<<<<<<< HEAD
-      await deleteTripAPI(tripId)
-
-=======
       // Call backend API to delete trip
       await deleteTripAPI(tripId)
       
       // Update local state to remove the trip
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       setUpcomingTrips(prev => prev.filter(t => t.id !== tripId))
       return true
     } catch (err) {
@@ -317,22 +216,11 @@ export const TripProvider = ({ children }) => {
   }
 
   // Load itinerary items for a specific trip
-<<<<<<< HEAD
-  // Returns array of: { id, dayIndex, title, description, startTime, endTime, locationName, activityType, notes }
-=======
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
   const loadItineraryItems = async (tripId) => {
     setLoading(true)
     setError(null)
     try {
       const items = await getItineraryItems(tripId)
-<<<<<<< HEAD
-      return items
-    } catch (err) {
-      console.error('Failed to load itinerary items:', err)
-      setError(err.message)
-      return []
-=======
       
       // Parse itinerary items into their respective categories
       const flights = []
@@ -398,20 +286,11 @@ export const TripProvider = ({ children }) => {
       console.error('Failed to load itinerary items:', err)
       setError(err.message)
       return null
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
     } finally {
       setLoading(false)
     }
   }
 
-<<<<<<< HEAD
-  // Add a single itinerary item (for adding to existing trip via generic form)
-  const addItineraryItem = async (tripId, itemData) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const newItem = await createItineraryItem(tripId, itemData)
-=======
   // Add a single itinerary item (for adding items to existing trips)
   const addItineraryItem = async (tripId, itemType, itemData) => {
     setLoading(true)
@@ -425,7 +304,6 @@ export const TripProvider = ({ children }) => {
         details: itemData
       })
       
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       return newItem
     } catch (err) {
       console.error('Failed to add itinerary item:', err)
@@ -437,13 +315,6 @@ export const TripProvider = ({ children }) => {
   }
 
   // Update a single itinerary item
-<<<<<<< HEAD
-  const updateSingleItineraryItem = async (tripId, itemId, itemData) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const updatedItem = await updateItineraryItem(tripId, itemId, itemData)
-=======
   const updateSingleItineraryItem = async (tripId, itemId, itemType, itemData) => {
     setLoading(true)
     setError(null)
@@ -456,7 +327,6 @@ export const TripProvider = ({ children }) => {
         details: itemData
       })
       
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       return updatedItem
     } catch (err) {
       console.error('Failed to update itinerary item:', err)
@@ -520,34 +390,6 @@ export const TripProvider = ({ children }) => {
   }
 
   return (
-<<<<<<< HEAD
-    <TripContext.Provider
-      value={{
-        flightData,
-        setFlightData,
-        carRentalData,
-        setCarRentalData,
-        activityData,
-        setActivityData,
-        lodgingData,
-        setLodgingData,
-        upcomingTrips,
-        addTrip,
-        updateTrip,
-        deleteTrip,
-        clearFlightData,
-        clearCarRentalData,
-        selectedTrip,
-        setSelectedTrip,
-        loading,
-        error,
-        loadItineraryItems,
-        addItineraryItem,
-        updateSingleItineraryItem,
-        deleteSingleItineraryItem
-      }}
-    >
-=======
     <TripContext.Provider value={{
       flightData,
       setFlightData,
@@ -574,12 +416,7 @@ export const TripProvider = ({ children }) => {
       tripMembers,
       setTripMembers
     }}>
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
       {children}
     </TripContext.Provider>
   )
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8

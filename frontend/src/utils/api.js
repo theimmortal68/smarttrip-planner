@@ -1,6 +1,6 @@
 // API utility functions for communicating with the backend
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 // Helper function to get the JWT token from localStorage
 const getAuthToken = () => {

@@ -8,16 +8,10 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true)
   
   // User data from backend or localStorage
-const [user, setUser] = useState(() => {
-  try {
+  const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('user')
     return stored ? JSON.parse(stored) : null
-  } catch (err) {
-    console.error('Invalid user in localStorage:', err, localStorage.getItem('user'))
-    localStorage.removeItem('user')
-    return null
-  }
-})
+  })
 
   // Fetch fresh user data from backend
   useEffect(() => {
@@ -30,7 +24,7 @@ const [user, setUser] = useState(() => {
         }
 
         // Fetch pattern similar to login - backend should create this endpoint
-        const res = await fetch('/api/users/me', {
+        const res = await fetch('http://localhost:3000/api/users/me', {
           method: 'GET',
           headers: { 
             'Authorization': `Bearer ${token}`
@@ -69,7 +63,7 @@ const [user, setUser] = useState(() => {
       const token = localStorage.getItem('token')
       
       // Fetch pattern similar to login - backend should create this endpoint
-      const res = await fetch('/api/users/me', {
+      const res = await fetch('http://localhost:3000/api/users/me', {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`

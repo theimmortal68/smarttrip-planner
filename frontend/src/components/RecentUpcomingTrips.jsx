@@ -40,20 +40,11 @@ const RecentUpcomingTrips = () => {
 
   return (
     <section className="bg-gray-50 px-4 py-10">
-<<<<<<< HEAD
-      <div className="max-w-4xl mx-auto px-2 sm:px-4 m-auto">
-        <h2 className="text-3xl sm:text-4xl font-black uppercase text-black mb-6 sm:mb-8 text-center">
-          Upcoming Trips
-        </h2>
-        <div className="flex justify-center">
-          <div className="w-full max-w-md space-y-4 sm:space-y-6">
-=======
       <div className="max-w-7xl mx-auto px-2 sm:px-4 m-auto">
         <h2 className="text-3xl sm:text-4xl font-black uppercase text-black mb-6 sm:mb-8 text-center">
           Recent Upcoming Trips
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
             {recentTrips.map((trip) => (
               <div key={trip.id}>
                 {/* Neo Brutalism Card */}
@@ -68,54 +59,6 @@ const RecentUpcomingTrips = () => {
                     <p className="font-mono text-xs sm:text-sm text-gray-800 break-all">{trip.startDate} → {trip.endDate}</p>
                   </div>
 
-<<<<<<< HEAD
-                  {trip.description && (
-                    <div className="mb-4 p-2 sm:p-3 bg-gray-100 border-2 border-black rounded">
-                      <p className="text-xs font-black uppercase mb-1">Description</p>
-                      <p className="text-xs sm:text-sm text-gray-800 break-words">{trip.description}</p>
-                    </div>
-                  )}
-                  
-                  {/* Show flight details if available */}
-                  {trip.flightData && trip.flightData.flights.length > 0 && (
-                    <div className="mb-4 p-3 bg-blue-100 border-3 border-black rounded">
-                      <p className="text-xs font-black uppercase mb-2">✈️ Flights ({trip.flightData.flights.length})</p>
-                      {trip.flightData.flights.map((flight) => (
-                        <p key={flight.id} className="text-sm font-bold text-gray-800 mb-1">{flight.customName || `Flight ${flight.id}`} - {flight.airline}</p>
-                      ))}
-                      {trip.flightData.totalCost && <p className="text-sm font-black mt-2">TOTAL: ${trip.flightData.totalCost}</p>}
-                    </div>
-                  )}
-
-                  {/* Show car rental details if available */}
-                  {trip.carRentalData && trip.carRentalData.rentalAgency && (
-                    <div className="mb-4 p-3 bg-green-100 border-3 border-black rounded">
-                      <p className="text-xs font-black uppercase mb-2">🚗 Car Rental</p>
-                      <p className="text-sm font-bold text-gray-800 mb-1">{trip.carRentalData.rentalAgency}</p>
-                      {trip.carRentalData.totalCost && <p className="text-sm font-black mt-2">TOTAL: ${trip.carRentalData.totalCost}</p>}
-                    </div>
-                  )}
-
-                  {/* Show lodging details if available */}
-                  {trip.lodgingData && trip.lodgingData.length > 0 && (
-                    <div className="mb-4 p-3 bg-purple-100 border-3 border-black rounded">
-                      <p className="text-xs font-black uppercase mb-2">🏨 Lodging ({trip.lodgingData.length})</p>
-                      {trip.lodgingData.map((lodging) => (
-                        <p key={lodging.id} className="text-sm font-bold text-gray-800 mb-1">{lodging.lodgingName} - {lodging.venue}</p>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Show activity details if available */}
-                  {trip.activityData && trip.activityData.length > 0 && (
-                    <div className="mb-4 p-3 bg-yellow-100 border-3 border-black rounded">
-                      <p className="text-xs font-black uppercase mb-2">🗓️ Activities ({trip.activityData.length})</p>
-                      {trip.activityData.map((activity) => (
-                        <p key={activity.id} className="text-sm font-bold text-gray-800 mb-1">{activity.activityName} - {activity.venue}</p>
-                      ))}
-                    </div>
-                  )}
-=======
                   {/* Days until trip counter */}
                   {(() => {
                     const startDate = new Date(trip.startDate)
@@ -171,7 +114,6 @@ const RecentUpcomingTrips = () => {
                       </span>
                     )}
                   </div>
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
 
                   {/* View Trip Button */}
                   <button
@@ -190,10 +132,6 @@ const RecentUpcomingTrips = () => {
                 </div>
               </div>
             ))}
-<<<<<<< HEAD
-          </div>
-=======
->>>>>>> aa6d1484a8c7e5ff664c7e8ce7daa6566ca1b7c8
         </div>
       </div>
     </section>
