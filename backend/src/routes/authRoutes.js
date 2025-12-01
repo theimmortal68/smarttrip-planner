@@ -184,6 +184,9 @@ router.get('/google/callback', async (req, res, next) => {
       email: user.email,
     };
 
+    // Turn the user object into a JSON string for storage
+    const userJson = JSON.stringify(safeUser);
+
     // 5) Tiny HTML page: store token in localStorage, redirect to frontend
     const frontendBase =
       process.env.FRONTEND_BASE_URL || 'http://localhost:5173';
@@ -198,9 +201,6 @@ router.get('/google/callback', async (req, res, next) => {
             // Store JWT and user info in localStorage
             window.localStorage.setItem('token', ${JSON.stringify(token)});
             window.localStorage.setItem('user', ${JSON.stringify(safeUser)});
-
-            // If you still have this somewhere, don't use it anymore:
-            // window.localStorage.setItem('smarttrip_token', ...);
 
             // Redirect to the frontend
             window.location.href = ${JSON.stringify(redirectUrl)};
