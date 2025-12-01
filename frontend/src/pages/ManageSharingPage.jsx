@@ -84,12 +84,17 @@ const ManageSharingPage = () => {
       // }
 
       // Fetch current user from localStorage (set by LoginPage/ProfilePage)
-      const storedUser = localStorage.getItem('user')
+      const storedUser = localStorage.getItem('user');
       if (storedUser) {
-        const user = JSON.parse(storedUser)
-        setCurrentUser(user)
+        try {
+          const user = JSON.parse(storedUser);
+          setCurrentUser(user);
+        } catch (err) {
+          console.error('Invalid user in localStorage, clearing it', err);
+          localStorage.removeItem('user');
+        }
       }
-
+      
       // For testing without backend: show error but don't redirect
       if (!token) {
         setError('Backend not connected - member management requires authentication')

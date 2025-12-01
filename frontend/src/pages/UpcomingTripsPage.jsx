@@ -41,17 +41,21 @@ const UpcomingTripsPage = () => {
   const loadCurrentUser = async () => {
     try {
       // Get current user from localStorage (set by LoginPage/ProfilePage)
-      const storedUser = localStorage.getItem('user')
+      const storedUser = localStorage.getItem('user');
       if (storedUser) {
-        const user = JSON.parse(storedUser)
-        // Transform to match expected format (firstName -> first_name)
-        setCurrentUser({
-          id: user.id,
-          first_name: user.firstName,
-          last_name: user.lastName,
-          email: user.email
-        })
-      }
+        try {
+          const user = JSON.parse(storedUser);
+          setCurrentUser({
+            id: user.id,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            email: user.email,
+          });
+        } catch (err) {
+          console.error('Invalid user in localStorage, clearing it', err);
+          localStorage.removeItem('user');
+        }
+      }      
     } catch (err) {
       console.error('Error loading current user:', err)
     }

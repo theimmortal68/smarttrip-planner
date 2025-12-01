@@ -16,10 +16,18 @@ const Navbar = () => {
   // Get user data from localStorage (set by LoginPage or ProfilePage)
   // eslint-disable-next-line no-unused-vars
   const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('user')
-    return stored ? JSON.parse(stored) : { firstName: 'User', lastName: '' }
-  })
-
+    const stored = localStorage.getItem('user');
+    if (!stored) return { firstName: 'User', lastName: '' };
+  
+    try {
+      return JSON.parse(stored);
+    } catch (err) {
+      console.error('Invalid user in localStorage, clearing it', err);
+      localStorage.removeItem('user');
+      return { firstName: 'User', lastName: '' };
+    }
+  });
+  
   // COMMENTED OUT: Hardcoded placeholder data
   // const user = {
   //   firstName: 'John',
