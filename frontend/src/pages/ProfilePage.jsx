@@ -24,7 +24,7 @@ const ProfilePage = () => {
         }
 
         // Fetch pattern similar to login - backend should create this endpoint
-        const res = await fetch('http://localhost:3000/api/users/me', {
+        const res = await fetch('/api/users/me', {
           method: 'GET',
           headers: { 
             'Authorization': `Bearer ${token}`
@@ -63,7 +63,7 @@ const ProfilePage = () => {
       const token = localStorage.getItem('token')
       
       // Fetch pattern similar to login - backend should create this endpoint
-      const res = await fetch('http://localhost:3000/api/users/me', {
+      const res = await fetch('/api/users/me', {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`

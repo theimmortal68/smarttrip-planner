@@ -99,7 +99,7 @@ const ManageSharingPage = () => {
 
       // Fetch trip members
       // Backend should return: [{ id, user_id, first_name, last_name, email, role }, ...]
-      const membersRes = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
+      const membersRes = await fetch(`/api/trips/${tripId}/members`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -117,7 +117,7 @@ const ManageSharingPage = () => {
 
       // Fetch all users for search
       // Backend should return: [{ id, firstName, lastName, email }, ...]
-      const usersRes = await fetch('http://localhost:3000/api/users', {
+      const usersRes = await fetch('/api/users', {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -166,7 +166,7 @@ const ManageSharingPage = () => {
 
       // Add trip member
       // Backend should accept: { email: string, role: string }
-      const res = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
+      const res = await fetch(`/api/trips/${tripId}/members`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -184,7 +184,7 @@ const ManageSharingPage = () => {
       }
 
       // Refresh members list
-      const membersRes = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
+      const membersRes = await fetch(`/api/trips/${tripId}/members`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -227,7 +227,7 @@ const ManageSharingPage = () => {
       }
 
       // Remove trip member
-      const res = await fetch(`http://localhost:3000/api/trips/${tripId}/members/${memberId}`, {
+      const res = await fetch(`/api/trips/${tripId}/members/${memberId}`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -241,7 +241,7 @@ const ManageSharingPage = () => {
       }
 
       // Refresh members list
-      const membersRes = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
+      const membersRes = await fetch(`/api/trips/${tripId}/members`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -275,7 +275,7 @@ const ManageSharingPage = () => {
 
       // Update member role
       // Backend should accept: { role: string }
-      const res = await fetch(`http://localhost:3000/api/trips/${tripId}/members/${memberId}`, {
+      const res = await fetch(`/api/trips/${tripId}/members/${memberId}`, {
         method: 'PATCH',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -290,7 +290,7 @@ const ManageSharingPage = () => {
       }
 
       // Refresh members list
-      const membersRes = await fetch(`http://localhost:3000/api/trips/${tripId}/members`, {
+      const membersRes = await fetch(`/api/trips/${tripId}/members`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,

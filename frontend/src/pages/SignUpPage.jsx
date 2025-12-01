@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../utils/api';
 
 const SignUpPage = () => {
   const [firstName, setFirstName] = useState("");
@@ -18,16 +19,22 @@ const SignUpPage = () => {
       return;
     }
     try {
-      const res = await fetch('http://localhost:3000/api/auth/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firstName, lastName, email, password })
       });
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.message || 'Signup failed.');
+        let message = 'Signup failed.';
+        try {
+          const data = await res.json();
+          message = data.message || message;
+        } catch (err) {
+          console.error('Error parsing signup error response:', err);
+        }
+        setError(message);
         return;
-      }
+      }      
       navigate('/login');
     } catch {
       setError('Network error. Please try again.');

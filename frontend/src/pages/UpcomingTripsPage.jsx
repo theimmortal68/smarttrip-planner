@@ -72,7 +72,7 @@ const UpcomingTripsPage = () => {
       try {
         // Fetch trip members from backend
         // Backend should return: [{ id, user_id, first_name, last_name, email, role }, ...]
-        const res = await fetch(`http://localhost:3000/api/trips/${trip.id}/members`, {
+        const res = await fetch(`/api/trips/${trip.id}/members`, {
           method: 'GET',
           headers: { 
             'Authorization': `Bearer ${token}`,
