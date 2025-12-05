@@ -1,14 +1,14 @@
-name: Deploy to myflix
+name: Deploy SmartTrip to Unraid
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch: {}  # allow manual runs from GitHub UI
+      - main          # deploy automatically when main is updated
+  workflow_dispatch:  # allow manual runs from the Actions tab
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
@@ -20,25 +20,23 @@ jobs:
           ssh-private-key: |
             ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Add server to known_hosts
+      - name: Add Unraid host to known_hosts
         run: |
           mkdir -p ~/.ssh
-          # Add the SSH host key for custom port 1968
-          ssh-keyscan -p 1968 -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Run deploy script on server
-        id: deploy_script
+      - name: Run deploy script on Unraid
         run: |
-          ssh -p 1968 "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" "bash /opt/smarttrip/deploy.sh"
+          ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "bash /mnt/user/smarttrip/deploy.sh"
 
-      - name: Show recent backend/frontend logs
-        if: always()    # only runs if a previous step in this job failed
+      - name: Show backend logs (smarttrip-backend)
+        if: always()   # run even if deploy step failed
         run: |
-          echo "===== smarttrip-backend (last 80 lines) ====="
-          ssh -p 1968 "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
-            "journalctl -u smarttrip-backend.service -n 80 --no-pager || echo 'no backend logs'"
+          echo "===== smarttrip-backend (last 100 lines) ====="
+          ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "docker logs --tail=100 smarttrip-backend || echo 'backend container not found'"
 
-          echo ""
-          echo "===== smarttrip-frontend (last 80 lines) ====="
-          ssh -p 1968 "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
-            "journalctl -u smarttrip-frontend.service -n 80 --no-pager || echo 'no frontend logs'"
+      - name: Show frontend logs (smarttrip-frontend)
+        if: always()   # run even if deploy step failed
+        run: |
+          echo "===== smarttrip-frontend (last 100 lines) ====="
+          ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "docker logs --tail=100 smarttrip-frontend || echo 'frontend container not found'"
