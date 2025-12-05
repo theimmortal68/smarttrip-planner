@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { API_BASE_URL } from '../utils/api'
 
 const SignUpPage = () => {
@@ -9,6 +10,8 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRePassword, setShowRePassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -190,30 +193,50 @@ const SignUpPage = () => {
 
             <div className="mb-6">
               <label className="block text-gray-900 font-black uppercase mb-2 text-sm">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="border-4 border-black rounded w-full py-3 px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                placeholder="Enter your password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  className="border-4 border-black rounded w-full py-3 px-4 pr-12 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                </button>
+              </div>
             </div>
 
             <div className="mb-6">
               <label className="block text-gray-900 font-black uppercase mb-2 text-sm">Re-Enter Your Password</label>
-              <input
-                type="password"
-                id="re-enter-password"
-                name="re-enter-password"
-                className="border-4 border-black rounded w-full py-3 px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                placeholder="Confirm your password"
-                value={rePassword}
-                onChange={e => setRePassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showRePassword ? "text" : "password"}
+                  id="re-enter-password"
+                  name="re-enter-password"
+                  className="border-4 border-black rounded w-full py-3 px-4 pr-12 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                  placeholder="Confirm your password"
+                  value={rePassword}
+                  onChange={e => setRePassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRePassword(!showRePassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black transition-colors"
+                  aria-label={showRePassword ? "Hide password" : "Show password"}
+                >
+                  {showRePassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                </button>
+              </div>
             </div>
 
             {error && (
