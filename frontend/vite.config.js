@@ -9,5 +9,11 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: ['smarttrip.myflix.media', 'localhost'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      }
+    }
   },
 })

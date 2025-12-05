@@ -293,6 +293,8 @@ export const TripProvider = ({ children }) => {
         itemType: itemType,
         title: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
         startDate: itemData.startDate || itemData.departure || itemData.pickupDate,
+        startTime: itemData.pickupTime || itemData.startTime,
+        endTime: itemData.dropoffTime || itemData.endTime,
         endDate: itemData.endDate || itemData.dropoffDate,
         details: itemData
       })

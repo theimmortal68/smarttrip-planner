@@ -277,7 +277,7 @@ const ManageSharingPage = () => {
       // Update member role
       // Backend should accept: { role: string }
       const res = await fetch(`${API_BASE_URL}/trips/${tripId}/members/${memberId}`, {
-        method: 'PATCH',
+        method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -469,6 +469,24 @@ const ManageSharingPage = () => {
               <FaUserPlus /> Add Member
             </h3>
             
+            {/* Role Selection */}
+            {canManageRoles() && (
+            <div className="mb-4">
+              <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">
+                Role
+              </label>
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+              >
+                {getAvailableRoles().map(role => (
+                  <option key={role.value} value={role.value}>{role.label}</option>
+                ))}
+              </select>
+            </div>
+            )}
+
             {/* Search Input */}
             <div className="mb-4 relative">
               <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">
@@ -504,24 +522,6 @@ const ManageSharingPage = () => {
                 </div>
               )}
             </div>
-
-            {/* Role Selection */}
-            {canManageRoles() && (
-            <div className="mb-4">
-              <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">
-                Role
-              </label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-              >
-                {getAvailableRoles().map(role => (
-                  <option key={role.value} value={role.value}>{role.label}</option>
-                ))}
-              </select>
-            </div>
-            )}
           </div>
           )}
 
