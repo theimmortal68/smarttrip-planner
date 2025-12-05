@@ -100,14 +100,14 @@ export const TripProvider = ({ children }) => {
       if (flightData?.flights?.length > 0) {
         for (const flight of flightData.flights) {
           await createItineraryItem(tripId, {
-            item_type: 'flight',
-            item_name: flight.customName || `Flight ${flight.id}`,
-            start_date: flight.departure,
+            itemType: 'flight',
+            title: flight.customName || `Flight ${flight.id}`,
+            startDate: flight.departure,
+            numberOfGuests: flight.seats,
+            totalCost: flightData.totalCost,
             details: {
               airline: flight.airline,
               flightNumber: flight.flightNumber,
-              seats: flight.seats,
-              totalCost: flightData.totalCost
             }
           })
         }
@@ -116,10 +116,10 @@ export const TripProvider = ({ children }) => {
       // Create car rental itinerary item
       if (carRentalData?.rentalAgency) {
         await createItineraryItem(tripId, {
-          item_type: 'car_rental',
-          item_name: `Car Rental - ${carRentalData.rentalAgency}`,
-          start_date: carRentalData.pickupDate,
-          end_date: carRentalData.dropoffDate,
+          itemType: 'car_rental',
+          title: `Car Rental - ${carRentalData.rentalAgency}`,
+          startDate: carRentalData.pickupDate,
+          endDate: carRentalData.dropoffDate,
           details: carRentalData
         })
       }
@@ -128,10 +128,10 @@ export const TripProvider = ({ children }) => {
       if (activityData?.length > 0) {
         for (const activity of activityData) {
           await createItineraryItem(tripId, {
-            item_type: 'activity',
-            item_name: activity.activityName,
-            start_date: activity.startDate,
-            end_date: activity.endDate,
+            itemType: 'activity',
+            title: activity.activityName,
+            startDate: activity.startDate,
+            endDate: activity.endDate,
             details: activity
           })
         }
@@ -141,10 +141,10 @@ export const TripProvider = ({ children }) => {
       if (lodgingData?.length > 0) {
         for (const lodging of lodgingData) {
           await createItineraryItem(tripId, {
-            item_type: 'lodging',
-            item_name: lodging.lodgingName,
-            start_date: lodging.startDate,
-            end_date: lodging.endDate,
+            itemType: 'lodging',
+            title: lodging.lodgingName,
+            startDate: lodging.startDate,
+            endDate: lodging.endDate,
             details: lodging
           })
         }
@@ -222,16 +222,16 @@ export const TripProvider = ({ children }) => {
       const lodgings = []
       
       items.forEach(item => {
-        switch (item.item_type) {
+        switch (item.itemType) {
           case 'flight':
             flights.push({
               id: item.id,
-              customName: item.item_name,
-              departure: item.start_date,
+              customName: item.title,
+              departure: item.startDate,
               ...item.details
             })
             break
-          case 'car_rental':
+          case 'carRental':
             carRental = {
               id: item.id,
               ...item.details
@@ -240,18 +240,18 @@ export const TripProvider = ({ children }) => {
           case 'activity':
             activities.push({
               id: item.id,
-              activityName: item.item_name,
-              startDate: item.start_date,
-              endDate: item.end_date,
+              activityName: item.title,
+              startDate: item.startDate,
+              endDate: item.endDate,
               ...item.details
             })
             break
           case 'lodging':
             lodgings.push({
               id: item.id,
-              lodgingName: item.item_name,
-              startDate: item.start_date,
-              endDate: item.end_date,
+              lodgingName: item.title,
+              startDate: item.startDate,
+              endDate: item.endDate,
               ...item.details
             })
             break
@@ -290,10 +290,10 @@ export const TripProvider = ({ children }) => {
     setError(null)
     try {
       const newItem = await createItineraryItem(tripId, {
-        item_type: itemType,
-        item_name: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
-        start_date: itemData.startDate || itemData.departure || itemData.pickupDate,
-        end_date: itemData.endDate || itemData.dropoffDate,
+        itemType: itemType,
+        title: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
+        startDate: itemData.startDate || itemData.departure || itemData.pickupDate,
+        endDate: itemData.endDate || itemData.dropoffDate,
         details: itemData
       })
       
@@ -313,8 +313,8 @@ export const TripProvider = ({ children }) => {
     setError(null)
     try {
       const updatedItem = await updateItineraryItem(tripId, itemId, {
-        item_type: itemType,
-        itemName: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
+        itemType: itemType,
+        title: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
         startDate: itemData.startDate || itemData.departure || itemData.pickupDate,
         endDate: itemData.endDate || itemData.dropoffDate,
         details: itemData
