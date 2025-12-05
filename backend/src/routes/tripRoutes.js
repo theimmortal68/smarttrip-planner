@@ -535,13 +535,18 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
       const lodgingItem = lodgingMap[item.id] || null;
       const activityItem = activityMap[item.id] || null;
 
+      const { date: startDate, time: startTime } = splitDateTime(item.start_time);
+      const { date: endDate, time: endTime } = splitDateTime(item.end_time);
+
       return {
         id: item.id,
         itemType: item.item_type,
         title: item.title,
         description: item.description,
-        startTime: item.start_time ? formatTimeTo12h(item.start_time) : null,
-        endTime: item.end_time ? formatTimeTo12h(item.end_time) : null,
+        startDate,
+        startTime,
+        endDate,
+        endTime,
         venue: item.venue,
         address: item.address,
         phone: item.phone,
@@ -600,7 +605,9 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
       itemType,
       title,
       description,
+      startDate,
       startTime,
+      endDate,
       endTime,
       venue,
       address,
@@ -624,6 +631,10 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
         .json({ error: "itemType and title are required" });
     }
 
+    // Convert separate UI fields into MySQL DATETIME
+    const startDateTime = combineDateAndTime(startDate, startTime);
+    const endDateTime   = combineDateAndTime(endDate, endTime);
+
     // Create base itinerary item
     const item = await prisma.itinerary_items.create({
       data: {
@@ -631,8 +642,8 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
         item_type: itemType,
         title,
         description: description ?? null,
-        start_time: startTime ? new Date(startTime) : null,
-        end_time: endTime ? new Date(endTime) : null,
+        start_time: startDateTime ? new Date(startDateTime) : null,
+        end_time: endDateTime ? new Date(endDateTime) : null,
         venue: venue ?? null,
         address: address ?? null,
         phone: phone ?? null,
@@ -837,13 +848,20 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
         break;
     }
 
+    const { updStartDate, updStartTime } = splitDateTime(item.start_time);
+    const { updEndDate, updEndTime } = splitDateTime(item.end_time);
+
+      
+
     const response = {
       id: item.id,
       itemType: item.item_type,
       title: item.title,
       description: item.description,
-      startTime: item.start_time ? formatTimeTo12h(item.start_time) : null,
-      endTime: item.end_time ? formatTimeTo12h(item.end_time) : null,
+      startDate: updStartDate ? updStartDate : null,
+      startTime: updStartTime ? updStartTime : null,
+      endDate: updEndDate ? updEndDate : null,
+      endTime: updEndTime ? updEndTime : null,
       venue: item.venue,
       address: item.address,
       phone: item.phone,
@@ -909,7 +927,9 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
     const {
       title,
       description,
+      startDate,
       startTime,
+      endDate,
       endTime,
       venue,
       address,
@@ -927,13 +947,17 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
       details = {},
     } = req.body;
 
+    // Convert separate UI fields into MySQL DATETIME
+    const startDateTime = combineDateAndTime(startDate, startTime);
+    const endDateTime   = combineDateAndTime(endDate, endTime);
+
     const updated = await prisma.itinerary_items.update({
       where: { id: itemId },
       data: {
         title: title ?? existing.title,
         description: description ?? existing.description,
-        start_time: startTime ? new Date(startTime) : existing.start_time,
-        end_time: endTime ? new Date(endTime) : existing.end_time,
+        start_time: startDateTime ? new Date(startDateTime) : existing.start_time,
+        end_time: endDateTime ? new Date(endDateTime) : existing.end_time,
         venue: venue ?? existing.venue,
         address: address ?? existing.address,
         phone: phone ?? existing.phone,
@@ -1351,15 +1375,18 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
         break;
     }
 
+    const { updStartDate, updStartTime } = splitDateTime(updated.start_time);
+    const { updEndDate, updEndTime } = splitDateTime(updated.end_time);
+
     const response = {
       id: updated.id,
       itemType: updated.item_type,
       title: updated.title,
       description: updated.description,
-      startTime: updated.start_time
-        ? formatTimeTo12h(updated.start_time)
-        : null,
-      endTime: updated.end_time ? formatTimeTo12h(updated.end_time) : null,
+      startDate: updStartDate ? updStartDate : null,
+      startTime: updStartTime ? updStartTime : null,
+      endDate: updEndDate ? updEndDate : null,
+      endTime: updEndTime ? updEndTime : null,
       venue: updated.venue,
       address: updated.address,
       phone: updated.phone,
