@@ -24,7 +24,7 @@ export const TripProvider = ({ children }) => {
   })
 
   const [carRentalData, setCarRentalData] = useState({
-    rentalAgency: '',
+    title: '',
     pickupDate: '',
     pickupTime: '',
     dropoffDate: '',
@@ -45,8 +45,6 @@ export const TripProvider = ({ children }) => {
     },
     rentalInfo: {
       carType: '',
-      mileageCharges: '',
-      carDetails: ''
     }
   })
 
@@ -101,9 +99,9 @@ export const TripProvider = ({ children }) => {
         for (const flight of flightData.flights) {
           await createItineraryItem(tripId, {
             itemType: 'flight',
-            title: flight.customName || `Flight ${flight.id}`,
+            title: flight.title || `Flight ${flight.id}`,
             startDate: flight.departure,
-            numberOfGuests: flight.seats,
+            numberOfGuests: flight.numberOfGuests,
             totalCost: flightData.totalCost,
             details: {
               airline: flight.airline,
@@ -114,10 +112,10 @@ export const TripProvider = ({ children }) => {
       }
       
       // Create car rental itinerary item
-      if (carRentalData?.rentalAgency) {
+      if (carRentalData?.title) {
         await createItineraryItem(tripId, {
-          itemType: 'car_rental',
-          title: `Car Rental - ${carRentalData.rentalAgency}`,
+          itemType: 'carRental',
+          title: `Car Rental - ${carRentalData.title}`,
           startDate: carRentalData.pickupDate,
           endDate: carRentalData.dropoffDate,
           details: carRentalData
@@ -129,7 +127,7 @@ export const TripProvider = ({ children }) => {
         for (const activity of activityData) {
           await createItineraryItem(tripId, {
             itemType: 'activity',
-            title: activity.activityName,
+            title: activity.title,
             startDate: activity.startDate,
             endDate: activity.endDate,
             details: activity
@@ -142,7 +140,7 @@ export const TripProvider = ({ children }) => {
         for (const lodging of lodgingData) {
           await createItineraryItem(tripId, {
             itemType: 'lodging',
-            title: lodging.lodgingName,
+            title: lodging.title,
             startDate: lodging.startDate,
             endDate: lodging.endDate,
             details: lodging
@@ -226,7 +224,7 @@ export const TripProvider = ({ children }) => {
           case 'flight':
             flights.push({
               id: item.id,
-              customName: item.title,
+              title: item.title,
               departure: item.startDate,
               ...item.details
             })
@@ -240,7 +238,7 @@ export const TripProvider = ({ children }) => {
           case 'activity':
             activities.push({
               id: item.id,
-              activityName: item.title,
+              title: item.title,
               startDate: item.startDate,
               endDate: item.endDate,
               ...item.details
@@ -249,7 +247,7 @@ export const TripProvider = ({ children }) => {
           case 'lodging':
             lodgings.push({
               id: item.id,
-              lodgingName: item.title,
+              title: item.title,
               startDate: item.startDate,
               endDate: item.endDate,
               ...item.details
@@ -264,7 +262,7 @@ export const TripProvider = ({ children }) => {
       if (flights.length > 0) {
         setFlightData({ flights, totalCost: flights[0]?.totalCost || '' })
       }
-      if (carRental) {
+      if (carRental.length > 0) {
         setCarRentalData(carRental)
       }
       if (activities.length > 0) {
@@ -291,7 +289,7 @@ export const TripProvider = ({ children }) => {
     try {
       const newItem = await createItineraryItem(tripId, {
         itemType: itemType,
-        title: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
+        title: itemData.title || itemData.name || `${itemType}`,
         startDate: itemData.startDate || itemData.departure || itemData.pickupDate,
         startTime: itemData.pickupTime || itemData.startTime,
         endTime: itemData.dropoffTime || itemData.endTime,
@@ -316,7 +314,7 @@ export const TripProvider = ({ children }) => {
     try {
       const updatedItem = await updateItineraryItem(tripId, itemId, {
         itemType: itemType,
-        title: itemData.name || itemData.activityName || itemData.lodgingName || `${itemType}`,
+        title: itemData.title || itemData.name || `${itemType}`,
         startDate: itemData.startDate || itemData.departure || itemData.pickupDate,
         endDate: itemData.endDate || itemData.dropoffDate,
         details: itemData
@@ -357,7 +355,7 @@ export const TripProvider = ({ children }) => {
 
   const clearCarRentalData = () => {
     setCarRentalData({
-      rentalAgency: '',
+      title: '',
       pickupDate: '',
       pickupTime: '',
       dropoffDate: '',

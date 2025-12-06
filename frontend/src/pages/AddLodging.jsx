@@ -8,8 +8,8 @@ const AddLodging = () => {
   const { lodgingData = [], setLodgingData, selectedTrip } = _ctx
 
   const [form, setForm] = useState({
-    lodgingName: '',
-    propertyType: '',
+    title: '',
+    lodgingType: '',
     startDate: '',
     startTime: '',
     endDate: '',
@@ -20,8 +20,8 @@ const AddLodging = () => {
     website: '',
     email: '',
     confirmationNumber: '',
-    numberOfRooms: '',
-    numberOfBeds: '',
+    rooms: '',
+    beds: '',
     numberOfGuests: '',
     pricePerRoom: '',
     nightlyRate: '',
@@ -32,7 +32,7 @@ const AddLodging = () => {
   const handleChange = (e) => {
     const { name, value } = e.target
     // Validate numeric fields
-    if (['totalCost', 'pricePerRoom', 'nightlyRate', 'numberOfNights', 'numberOfRooms', 'numberOfBeds', 'numberOfGuests'].includes(name)) {
+    if (['totalCost', 'pricePerRoom', 'nightlyRate', 'numberOfNights', 'rooms', 'beds', 'numberOfGuests'].includes(name)) {
       if (!/^[0-9.]*$/.test(value)) return
     }
     setForm(prev => ({ ...prev, [name]: value }))
@@ -42,8 +42,8 @@ const AddLodging = () => {
     e.preventDefault()
     setLodgingData(prev => [...prev, { ...form, id: Date.now() }])
     setForm({
-      lodgingName: '',
-      propertyType: '',
+      title: '',
+      lodgingType: '',
       startDate: '',
       startTime: '',
       endDate: '',
@@ -54,12 +54,10 @@ const AddLodging = () => {
       website: '',
       email: '',
       confirmationNumber: '',
-      numberOfRooms: '',
-      numberOfBeds: '',
+      rooms: '',
+      beds: '',
       numberOfGuests: '',
       pricePerRoom: '',
-      nightlyRate: '',
-      numberOfNights: '',
       totalCost: ''
     })
     // Navigate to edit-trip if editing, otherwise add-trip
@@ -80,13 +78,13 @@ const AddLodging = () => {
             {/* Lodging Name */}
             <div className="mb-4 sm:mb-6">
               <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Lodging Name</label>
-              <input type="text" name="lodgingName" value={form.lodgingName} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Lodging Name" />
+              <input type="text" name="title" value={form.title} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Lodging Name" />
             </div>
 
             {/* Property Type */}
             <div className="mb-4 sm:mb-6">
               <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Property Type</label>
-              <select name="propertyType" value={form.propertyType} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+              <select name="lodgingType" value={form.lodgingType} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
                 <option value="">Select Property Type</option>
                 <option value="hotel">Hotel</option>
                 <option value="airbnb">Airbnb</option>
@@ -162,11 +160,11 @@ const AddLodging = () => {
             <div className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Number of Rooms</label>
-                <input type="text" name="numberOfRooms" value={form.numberOfRooms} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Number of rooms" />
+                <input type="text" name="rooms" value={form.rooms} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Number of rooms" />
               </div>
               <div>
                 <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Number of Beds</label>
-                <input type="text" name="numberOfBeds" value={form.numberOfBeds} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Number of beds" />
+                <input type="text" name="beds" value={form.beds} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Number of beds" />
               </div>
             </div>
 

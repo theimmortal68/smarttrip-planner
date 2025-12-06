@@ -1,7 +1,8 @@
 const express = require("express");
 const prisma = require("../../db/prisma");
 const auth = require("../middleware/auth");
-const { formatTimeTo12h } = require("../utils/time");
+const { combineDateAndTime } = require("../utils/dateTime")
+const { splitDateTime } = require("../utils/dateTime")
 
 const router = express.Router();
 
@@ -36,6 +37,19 @@ async function getUserTripRole(userId, tripId) {
 
   const membership = trip.trip_members[0];
   return { trip, role: membership?.role || null };
+}
+
+function parseBoolean(value) {
+  if (value === true || value === false) return value;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
+}
+
+function parseNumber(value) {
+  if (value === "" || value == null) return null;
+  const n = Number(value);
+  return Number.isNaN(n) ? null : n;
 }
 
 /* ========================================================================== */
@@ -352,10 +366,16 @@ router.delete("/:id", auth, async (req, res, next) => {
     Allowed roles: any member (owner, co_owner, editor, viewer)
 */
 router.get("/:tripId/itinerary", auth, async (req, res, next) => {
+
+  console.log('➡️ GET /trips/:tripId/itinerary hit', {
+    params: req.params,
+    userId: req.user?.sub, // if you’re using auth
+  });
+
   try {
     const userId = Number(req.user.sub);
     const tripId = Number(req.params.tripId);
-
+    
     if (Number.isNaN(tripId)) {
       return res.status(400).json({ error: "Invalid trip id" });
     }
@@ -401,72 +421,77 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
         notes: true,
       },
     });
-
+    
     if (items.length === 0) {
+      console.log("Items == null");
       return res.json([]);
     }
 
     const itemIds = items.map((i) => i.id);
 
+    console.log(`Item IDs: ${itemIds}`);
+
     // Fetch child records for all items
     const [flights, carRentals, lodging, activities] = await Promise.all([
-      prisma.flight_itinerary.findMany({
-        where: { itinerary_item_id: { in: itemIds } },
-        select: {
-          id: true,
-          itinerary_item_id: true,
-          flight_number: true,
-          airline: true,
-          departure_airport: true,
-          arrival_airport: true,
-        },
-      }),
-      prisma.car_rental_itinerary.findMany({
-        where: { itinerary_item_id: { in: itemIds } },
-        select: {
-          id: true,
-          itinerary_item_id: true,
-          pickup_location: true,
-          pickup_address: true,
-          pickup_phone: true,
-          dropoff_location: true,
-          dropoff_address: true,
-          dropoff_phone: true,
-          car_type: true,
-        },
-      }),
-      prisma.lodging_itinerary.findMany({
-        where: { itinerary_item_id: { in: itemIds } },
-        select: {
-          id: true,
-          itinerary_item_id: true,
-          lodging_type: true,
-          rooms: true,
-          beds: true,
-          price_per_room: true,
-        },
-      }),
-      prisma.activity_itinerary.findMany({
-        where: { itinerary_item_id: { in: itemIds } },
-        select: {
-          id: true,
-          itinerary_item_id: true,
-          activity_type: true,
-          difficulty_level: true,
-          meeting_location: true,
-          meeting_instructions: true,
-          certification_required: true,
-          certification_details: true,
-          min_age: true,
-          max_participants: true,
-          equipment_needed: true,
-          dress_code: true,
-          booking_required: true,
-          additional_costs: true,
-          additional_costs_description: true,
-        },
-      }),
-    ]);
+    prisma.flight_itinerary.findMany({
+      where: { itinerary_item_id: { in: itemIds } },
+      select: {
+        id: true,
+        itinerary_item_id: true,
+        flight_number: true,
+        airline: true,
+        departure_airport: true,
+        arrival_airport: true,
+      },
+    }),
+    prisma.car_rental_itinerary.findMany({
+      where: { itinerary_item_id: { in: itemIds } },
+      select: {
+        id: true,
+        itinerary_item_id: true,
+        pickup_location: true,
+        pickup_address: true,
+        pickup_phone: true,
+        dropoff_location: true,
+        dropoff_address: true,
+        dropoff_phone: true,
+        car_type: true,
+      },
+    }),
+    prisma.lodging_itinerary.findMany({
+      where: { itinerary_item_id: { in: itemIds } },
+      select: {
+        id: true,
+        itinerary_item_id: true,
+        lodging_type: true,
+        rooms: true,
+        beds: true,
+        price_per_room: true,
+      },
+    }),
+    prisma.activity_itinerary.findMany({
+      where: { itinerary_item_id: { in: itemIds } },
+      select: {
+        id: true,
+        itinerary_item_id: true,
+        activity_type: true,
+        difficulty_level: true,
+        meeting_location: true,
+        meeting_instructions: true,
+        certification_required: true,
+        certification_details: true,
+        min_age: true,
+        max_participants: true,
+        equipment_needed: true,
+        dress_code: true,
+        booking_required: true,
+        additional_costs: true,
+        additional_costs_description: true,
+      },
+    }),
+  ]); 
+
+    console.log(`Check it out: ${flights}`);
 
     // Build lookup maps keyed by itinerary_item_id
     const flightMap = {};
@@ -481,6 +506,9 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
       };
     }
 
+    let mileageCharges = null;
+    let carDetails = null;
+
     const carRentalMap = {};
     for (const c of carRentals) {
       carRentalMap[c.itinerary_item_id] = {
@@ -493,6 +521,8 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
         dropoffAddress: c.dropoff_address,
         dropoffPhone: c.dropoff_phone,
         carType: c.car_type,
+        mileageCharges: mileageCharges,
+        carDetails: carDetails,
       };
     }
 
@@ -529,14 +559,23 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
       };
     }
 
+    console.log('✅ Itinerary items found:', items);
+
     const response = items.map((item) => {
       const flight = flightMap[item.id] || null;
       const carRental = carRentalMap[item.id] || null;
-      const lodgingItem = lodgingMap[item.id] || null;
-      const activityItem = activityMap[item.id] || null;
+      const lodging = lodgingMap[item.id] || null;
+      const activity = activityMap[item.id] || null;
 
       const { date: startDate, time: startTime } = splitDateTime(item.start_time);
       const { date: endDate, time: endTime } = splitDateTime(item.end_time);
+
+      // Setting details with current object
+      let responseDetails = null;
+      if (flight) responseDetails = flight;
+      if (carRental) responseDetails = carRental;
+      if (lodging) responseDetails = lodging;
+      if (activity) responseDetails = activity;
 
       return {
         id: item.id,
@@ -560,14 +599,11 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
         activityType: item.activity_type,
         googlePlaceId: item.google_place_id,
         notes: item.notes,
-        details: {
-          flight,
-          carRental,
-          lodging: lodgingItem,
-          activity: activityItem,
-        },
+        responseDetails
       };
     });
+
+    console.log(`Here is ${response}`);
 
     res.json(response);
   } catch (err) {
@@ -634,13 +670,15 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
     // Convert separate UI fields into MySQL DATETIME
     const startDateTime = combineDateAndTime(startDate, startTime);
     const endDateTime   = combineDateAndTime(endDate, endTime);
+    const cleanNumOfGuests = parseNumber(numberOfGuests);
+    const cleanTotalCost = parseNumber(totalCost);
 
     // Create base itinerary item
     const item = await prisma.itinerary_items.create({
       data: {
         trip_id: tripId,
         item_type: itemType,
-        title,
+        title: title,
         description: description ?? null,
         start_time: startDateTime ? new Date(startDateTime) : null,
         end_time: endDateTime ? new Date(endDateTime) : null,
@@ -651,8 +689,8 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
         email: email ?? null,
         provider: provider ?? null,
         confirmation_number: confirmationNumber ?? null,
-        total_cost: totalCost ?? null,
-        number_of_guests: numberOfGuests ?? null,
+        total_cost: cleanTotalCost,
+        number_of_guests: cleanNumOfGuests,
         location_name: locationName ?? null,
         activity_type: activityType ?? null,
         google_place_id: googlePlaceId ?? null,
@@ -691,7 +729,7 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
     // Create child record based on itemType, if details provided
     switch (itemType) {
       case "flight": {
-        const flightDetails = details.flight || {};
+        const flightDetails = details || {};
         flight = await prisma.flight_itinerary.create({
           data: {
             itinerary_item_id: item.id,
@@ -719,18 +757,18 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
         };
         break;
       }
-      case "car_rental": {
-        const carDetails = details.carRental || {};
+      case "carRental": {
+        const carDetails = details || {};
         carRental = await prisma.car_rental_itinerary.create({
           data: {
             itinerary_item_id: item.id,
-            pickup_location: carDetails.pickupLocation ?? null,
-            pickup_address: carDetails.pickupAddress ?? null,
-            pickup_phone: carDetails.pickupPhone ?? null,
-            dropoff_location: carDetails.dropoffLocation ?? null,
-            dropoff_address: carDetails.dropoffAddress ?? null,
-            dropoff_phone: carDetails.dropoffPhone ?? null,
-            car_type: carDetails.carType ?? null,
+            pickup_location: carDetails.pickupLocation.location ?? null,
+            pickup_address: carDetails.pickupAddress.address ?? null,
+            pickup_phone: carDetails.pickupPhone.phone ?? null,
+            dropoff_location: carDetails.dropoffLocation.location ?? null,
+            dropoff_address: carDetails.dropoffAddress.address ?? null,
+            dropoff_phone: carDetails.dropoffPhone.phone ?? null,
+            car_type: carDetails.rentalInfo.carType ?? null,
           },
           select: {
             id: true,
@@ -758,14 +796,17 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
         break;
       }
       case "lodging": {
-        const lodgingDetails = details.lodging || {};
+        const lodgingDetails = details || {};
+        const cleanRooms = parseNumber(lodgingDetails.rooms);
+        const cleanPricePR = parseNumber(lodgingDetails.pricePerRoom);
+
         lodging = await prisma.lodging_itinerary.create({
           data: {
             itinerary_item_id: item.id,
             lodging_type: lodgingDetails.lodgingType ?? null,
-            rooms: lodgingDetails.rooms ?? null,
+            rooms: cleanRooms,
             beds: lodgingDetails.beds ?? null,
-            price_per_room: lodgingDetails.pricePerRoom ?? null,
+            price_per_room: cleanPricePR,
           },
           select: {
             id: true,
@@ -787,7 +828,12 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
         break;
       }
       case "activity": {
-        const activityDetails = details.activity || {};
+        const activityDetails = details || {};
+        const cleanCertReq = parseBoolean(activityDetails.certificationRequired);
+        const cleanBookingReq = parseBoolean(activityDetails.bookingRequired);
+        const cleanMinAge = parseNumber(activityDetails.minAge);
+        const cleanMaxPpl = parseNumber(activityDetails.maxParticipants);
+
         activity = await prisma.activity_itinerary.create({
           data: {
             itinerary_item_id: item.id,
@@ -795,13 +841,13 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
             difficulty_level: activityDetails.difficultyLevel ?? null,
             meeting_location: activityDetails.meetingLocation ?? null,
             meeting_instructions: activityDetails.meetingInstructions ?? null,
-            certification_required: activityDetails.certificationRequired ?? null,
+            certification_required: cleanCertReq,
             certification_details: activityDetails.certificationDetails ?? null,
-            min_age: activityDetails.minAge ?? null,
-            max_participants: activityDetails.maxParticipants ?? null,
+            min_age: cleanMinAge,
+            max_participants: cleanMaxPpl,
             equipment_needed: activityDetails.equipmentNeeded ?? null,
             dress_code: activityDetails.dressCode ?? null,
-            booking_required: activityDetails.bookingRequired ?? null,
+            booking_required: cleanBookingReq,
             additional_costs: activityDetails.additionalCosts ?? null,
             additional_costs_description:
               activityDetails.additionalCostsDescription ?? null,
@@ -851,7 +897,12 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
     const { updStartDate, updStartTime } = splitDateTime(item.start_time);
     const { updEndDate, updEndTime } = splitDateTime(item.end_time);
 
-      
+    // Setting details with current object
+    let responseDetails = null;
+    if (flight) responseDetails = flight;
+    if (carRental) responseDetails = carRental;
+    if (lodging) responseDetails = lodging;
+    if (activity) responseDetails = activity;
 
     const response = {
       id: item.id,
@@ -875,12 +926,7 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
       activityType: item.activity_type,
       googlePlaceId: item.google_place_id,
       notes: item.notes,
-      details: {
-        flight,
-        carRental,
-        lodging,
-        activity,
-      },
+      responseDetails,
     };
 
     res.status(201).json(response);
@@ -999,6 +1045,9 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
 
     const itemType = existing.item_type; // trust existing type
 
+
+    // Prepping detail variables, these will be used in response to set details
+    
     let flight = null;
     let carRental = null;
     let lodging = null;
@@ -1007,7 +1056,7 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
     // Update or create matching child record, if details provided
     switch (itemType) {
       case "flight": {
-        const flightDetails = details.flight || {};
+        const flightDetails = details || {};
         if (Object.keys(flightDetails).length > 0) {
           const existingFlight = await prisma.flight_itinerary.findFirst({
             where: { itinerary_item_id: itemId },
@@ -1074,8 +1123,8 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
         }
         break;
       }
-      case "car_rental": {
-        const carDetails = details.carRental || {};
+      case "carRental": {
+        const carDetails = details || {};
         if (Object.keys(carDetails).length > 0) {
           const existingCar = await prisma.car_rental_itinerary.findFirst({
             where: { itinerary_item_id: itemId },
@@ -1086,18 +1135,18 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
               where: { id: existingCar.id },
               data: {
                 pickup_location:
-                  carDetails.pickupLocation ?? existingCar.pickup_location,
+                  carDetails.pickupLocation.location ?? existingCar.pickup_location,
                 pickup_address:
-                  carDetails.pickupAddress ?? existingCar.pickup_address,
+                  carDetails.pickupAddress.address ?? existingCar.pickup_address,
                 pickup_phone:
-                  carDetails.pickupPhone ?? existingCar.pickup_phone,
+                  carDetails.pickupPhone.phone ?? existingCar.pickup_phone,
                 dropoff_location:
-                  carDetails.dropoffLocation ?? existingCar.dropoff_location,
+                  carDetails.dropoffLocation.location ?? existingCar.dropoff_location,
                 dropoff_address:
-                  carDetails.dropoffAddress ?? existingCar.dropoff_address,
+                  carDetails.dropoffAddress.address ?? existingCar.dropoff_address,
                 dropoff_phone:
-                  carDetails.dropoffPhone ?? existingCar.dropoff_phone,
-                car_type: carDetails.carType ?? existingCar.car_type,
+                  carDetails.dropoffPhone.phone ?? existingCar.dropoff_phone,
+                car_type: carDetails.rentalInfo.carType ?? existingCar.car_type,
               },
               select: {
                 id: true,
@@ -1126,13 +1175,13 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
             const c = await prisma.car_rental_itinerary.create({
               data: {
                 itinerary_item_id: itemId,
-                pickup_location: carDetails.pickupLocation ?? null,
-                pickup_address: carDetails.pickupAddress ?? null,
-                pickup_phone: carDetails.pickupPhone ?? null,
-                dropoff_location: carDetails.dropoffLocation ?? null,
-                dropoff_address: carDetails.dropoffAddress ?? null,
-                dropoff_phone: carDetails.dropoffPhone ?? null,
-                car_type: carDetails.carType ?? null,
+                pickup_location: carDetails.pickupLocation.location ?? null,
+                pickup_address: carDetails.pickupAddress.address ?? null,
+                pickup_phone: carDetails.pickupPhone.phone ?? null,
+                dropoff_location: carDetails.dropoffLocation.location ?? null,
+                dropoff_address: carDetails.dropoffAddress.address ?? null,
+                dropoff_phone: carDetails.dropoffPhone.phone ?? null,
+                car_type: carDetails.rentalInfo.carType ?? null,
               },
               select: {
                 id: true,
@@ -1162,7 +1211,7 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
         break;
       }
       case "lodging": {
-        const lodgingDetails = details.lodging || {};
+        const lodgingDetails = details || {};
         if (Object.keys(lodgingDetails).length > 0) {
           const existingLodging = await prisma.lodging_itinerary.findFirst({
             where: { itinerary_item_id: itemId },
@@ -1228,7 +1277,7 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
         break;
       }
       case "activity": {
-        const activityDetails = details.activity || {};
+        const activityDetails = details || {};
         if (Object.keys(activityDetails).length > 0) {
           const existingActivity = await prisma.activity_itinerary.findFirst({
             where: { itinerary_item_id: itemId },
@@ -1378,6 +1427,13 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
     const { updStartDate, updStartTime } = splitDateTime(updated.start_time);
     const { updEndDate, updEndTime } = splitDateTime(updated.end_time);
 
+    // Setting details with current object
+    let responseDetails = null;
+    if (flight) responseDetails = flight;
+    if (carRental) responseDetails = carRental;
+    if (lodging) responseDetails = lodging;
+    if (activity) responseDetails = activity;
+
     const response = {
       id: updated.id,
       itemType: updated.item_type,
@@ -1400,12 +1456,7 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
       activityType: updated.activity_type,
       googlePlaceId: updated.google_place_id,
       notes: updated.notes,
-      details: {
-        flight,
-        carRental,
-        lodging,
-        activity,
-      },
+      responseDetails
     };
 
     res.json(response);

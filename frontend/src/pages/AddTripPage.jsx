@@ -102,8 +102,8 @@ const AddTripPage = () => {
               >
               <input
                 type="text"
-                id="tripName"
-                name="tripName"
+                id="name"
+                name="name"
                 value={name}
                 onChange={(e) => setTripName(e.target.value)}
                 className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
@@ -118,8 +118,8 @@ const AddTripPage = () => {
               >
               <input
                 type="text"
-                id="title"
-                name="title"
+                id="location"
+                name="location"
                 value={location}
                 onChange={(e) => setTripLocation(e.target.value)}
                 className="border-4 border-black rounded w-full py-3 px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
@@ -183,8 +183,8 @@ const AddTripPage = () => {
                 >Description</label
               >
               <textarea
-                id="description"
-                name="description"
+                id="notes"
+                name="notes"
                 value={notes}
                 onChange={(e) => setDescription(e.target.value)}
                 className="border-4 border-black rounded w-full py-3 px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
@@ -199,11 +199,11 @@ const AddTripPage = () => {
                 <h3 className="text-lg sm:text-xl font-black uppercase mb-4">✈️ Flight Details</h3>
                 {flightData.flights.map((flight) => (
                   <div key={flight.id} className="mb-3 p-3 sm:p-4 bg-white rounded border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <p className="font-black uppercase text-sm sm:text-base mb-2">{flight.customName || `Flight ${flight.id}`}</p>
+                    <p className="font-black uppercase text-sm sm:text-base mb-2">{flight.title || `Flight ${flight.id}`}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">Departure: {flight.departure}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">Airline: {flight.airline}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">Flight Number: {flight.flightNumber}</p>
-                    <p className="text-xs sm:text-sm text-gray-900 font-bold">Seats: {flight.seats}</p>
+                    <p className="text-xs sm:text-sm text-gray-900 font-bold">Seats: {flight.numberOfGuests}</p>
                   </div>
                 ))}
                 <div className="border-t-4 border-black pt-3 mt-3">
@@ -213,13 +213,13 @@ const AddTripPage = () => {
             )}
 
             {/* Display Car Rental if it exists */}
-            {carRentalData.rentalAgency && (
+            {carRentalData.title && (
               <div className="mb-6 p-4 sm:p-6 bg-green-100 rounded-lg border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <h3 className="text-lg sm:text-xl font-black uppercase mb-4">🚗 Car Rental Details</h3>
                 
                 <div className="mb-3 p-3 sm:p-4 bg-white rounded border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                   <p className="font-black uppercase text-sm sm:text-base mb-2">Rental Information</p>
-                  <p className="text-xs sm:text-sm text-gray-900 font-bold">Agency: {carRentalData.rentalAgency}</p>
+                  <p className="text-xs sm:text-sm text-gray-900 font-bold">Agency: {carRentalData.title}</p>
                   <p className="text-xs sm:text-sm text-gray-900 font-bold">Pickup: {carRentalData.pickupDate} at {carRentalData.pickupTime}</p>
                   <p className="text-xs sm:text-sm text-gray-900 font-bold">Dropoff: {carRentalData.dropoffDate} at {carRentalData.dropoffTime}</p>
                   <p className="text-xs sm:text-sm text-gray-900 font-bold">Confirmation: {carRentalData.confirmationNumber}</p>
@@ -267,7 +267,7 @@ const AddTripPage = () => {
                 <h3 className="text-lg sm:text-xl font-black uppercase mb-4">🎭 Activity Details</h3>
                 {activityData.map((activity) => (
                   <div key={activity.id} className="mb-3 p-3 sm:p-4 bg-white rounded border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <p className="font-black uppercase text-sm sm:text-base mb-2">{activity.activityName}</p>
+                    <p className="font-black uppercase text-sm sm:text-base mb-2">{activity.title}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">Start: {activity.startDate} {activity.startTime}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">End: {activity.endDate} {activity.endTime}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">Venue: {activity.venue}</p>
@@ -287,7 +287,7 @@ const AddTripPage = () => {
                 <h3 className="text-lg sm:text-xl font-black uppercase mb-4">🏨 Lodging Details</h3>
                 {lodgingData.map((lodging) => (
                   <div key={lodging.id} className="mb-3 p-3 sm:p-4 bg-white rounded border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <p className="font-black uppercase text-sm sm:text-base mb-2">{lodging.lodgingName}</p>
+                    <p className="font-black uppercase text-sm sm:text-base mb-2">{lodging.title}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">Start: {lodging.startDate} {lodging.startTime}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">End: {lodging.endDate} {lodging.endTime}</p>
                     <p className="text-xs sm:text-sm text-gray-900 font-bold">Venue: {lodging.venue}</p>

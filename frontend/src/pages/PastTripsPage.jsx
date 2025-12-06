@@ -45,11 +45,11 @@ const PastTripsPage = () => {
                         ? `${new Date(trip.startDate).toLocaleDateString()} - ${new Date(trip.endDate).toLocaleDateString()}`
                         : 'Dates not set'}
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-black uppercase break-words">{trip.tripName || 'Untitled Trip'}</h3>
+                    <h3 className="text-xl sm:text-2xl font-black uppercase break-words">{trip.name || 'Untitled Trip'}</h3>
                   </div>
 
                   <div className="mb-4 sm:mb-5 font-bold text-xs sm:text-sm text-gray-700 break-words">
-                    {trip.description || 'No description'}
+                    {trip.notes || 'No description'}
                   </div>
 
                   <div className="border-t-4 border-black mb-4 sm:mb-5"></div>
@@ -57,7 +57,7 @@ const PastTripsPage = () => {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                     <div className="text-red-600 font-bold text-xs sm:text-sm break-words">
                       <FaMapMarker className="inline text-sm sm:text-lg mr-2 mb-1"/>
-                      {trip.tripLocation || 'No location set'}
+                      {trip.location || 'No location set'}
                     </div>
                     <button
                       onClick={() => handleViewTrip(trip)}

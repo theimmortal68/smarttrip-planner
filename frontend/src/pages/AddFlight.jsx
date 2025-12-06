@@ -5,9 +5,9 @@ import { TripContext } from '../context/TripContext'
 
 // Single flight component used for each created flight
 const FlightItem = ({ flight, onChange, onRemove, onAdd, canRemove }) => {
-  const { id, departure, airline, flightNumber, seats, customName } = flight
+  const { id, departure, airline, flightNumber, numberOfGuests, title } = flight
   const [isEditingName, setIsEditingName] = useState(false)
-  const [editNameValue, setEditNameValue] = useState(customName || `Flight ${id}`)
+  const [editNameValue, setEditNameValue] = useState(title || `Flight ${id}`)
 
   const handlePickerChange = (e) => {
     const val = e.target.value // yyyy-mm-dd
@@ -17,11 +17,11 @@ const FlightItem = ({ flight, onChange, onRemove, onAdd, canRemove }) => {
   }
 
   const handleSaveName = () => {
-    onChange(id, 'customName', editNameValue)
+    onChange(id, 'title', editNameValue)
     setIsEditingName(false)
   }
 
-  const displayName = customName || `Flight ${id}`
+  const displayName = title || `Flight ${id}`
 
   return (
     <div className="mb-6 sm:mb-8 p-4 sm:p-6 border-4 border-black rounded-lg bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -79,10 +79,10 @@ const FlightItem = ({ flight, onChange, onRemove, onAdd, canRemove }) => {
 
         <div>
           <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Seats</label>
-          <input type="text" value={seats} onChange={(e) => {
+          <input type="text" value={numberOfGuests} onChange={(e) => {
             const val = e.target.value;
             if (/^[a-zA-Z0-9]*$/.test(val)) {
-              onChange(id, 'seats', val);
+              onChange(id, 'numberOfGuests', val);
             }
           }} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Seats" />
         </div>
@@ -112,7 +112,7 @@ const AddFlight = () => {
   // dynamic flights list - initialize with context data if available, otherwise one empty flight
   const [flights, setFlights] = useState(() => {
     if (flightData?.flights?.length > 0) return flightData.flights.map(f => ({ ...f }))
-    return [{ id: 1, departure: '', airline: '', flightNumber: '', seats: '', customName: '' }]
+    return [{ id: 1, departure: '', airline: '', flightNumber: '', numberOfGuests: '', title: '' }]
   })
   const [nextId, setNextId] = useState(() => {
     if (flightData?.flights?.length > 0) {
@@ -135,7 +135,7 @@ const AddFlight = () => {
   const handleEndDateChange = (e) => setEndDate(e.target.value)
 
   const addFlight = () => {
-    setFlights((prev) => [...prev, { id: nextId, departure: '', airline: '', flightNumber: '', seats: '', customName: '' }])
+    setFlights((prev) => [...prev, { id: nextId, departure: '', airline: '', flightNumber: '', numberOfGuests: '', title: '' }])
     setNextId((n) => n + 1)
   }
 

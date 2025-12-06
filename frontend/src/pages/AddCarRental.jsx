@@ -9,11 +9,11 @@ const AddCarRental = () => {
 
   const [formData, setFormData] = useState(() => {
     // Initialize with context data if available (for edit mode)
-    if (carRentalData?.rentalAgency) {
+    if (carRentalData?.title) {
       return { ...carRentalData }
     }
     return {
-      rentalAgency: '',
+      title: '',
       pickupDate: '',
       pickupTime: '',
       dropoffDate: '',
@@ -96,7 +96,7 @@ const AddCarRental = () => {
             {/* Rental Agency */}
             <div className="mb-4 sm:mb-6">
               <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Rental Agency</label>
-              <input type="text" name="rentalAgency" value={formData.rentalAgency} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Rental Agency" />
+              <input type="text" name="title" value={formData.title} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Rental Agency" />
             </div>
 
             {/* Pickup Date & Time */}

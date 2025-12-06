@@ -7,6 +7,8 @@ const TripDetailsPage = () => {
   const ctx = useContext(TripContext)
   const selectedTrip = ctx?.selectedTrip ?? null
   const loadItineraryItems = ctx?.loadItineraryItems
+
+  const {flightData, carRentalData, activityData, lodgingData} = ctx || {};
   
   // Mock user role (replace with actual API call when backend is ready)
   // For testing: owner/co_owner can delete and edit, editor can only edit, viewer can only view
@@ -14,13 +16,10 @@ const TripDetailsPage = () => {
 
   // Load itinerary items when trip is selected
   useEffect(() => {
-    if (selectedTrip?.id && loadItineraryItems) {
-      loadItineraryItems(selectedTrip.id)
-      // TODO: Fetch user's role for this trip from backend
-      // const role = await getUserRoleForTrip(selectedTrip.id)
-      // setUserRole(role)
-    }
-  }, [selectedTrip?.id, loadItineraryItems])
+  if (!selectedTrip?.id || !loadItineraryItems) return;
+  loadItineraryItems(selectedTrip.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [selectedTrip?.id]);
   
   // Permission checks
   const canEdit = () => {
@@ -66,12 +65,12 @@ const TripDetailsPage = () => {
             <div className="bg-white border-4 border-black rounded-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-8">
               <div className="mb-4 pb-4 border-b-4 border-black">
                 <h1 className="text-3xl sm:text-4xl font-black uppercase mb-4 break-words">
-                  {selectedTrip.tripName}
+                  {selectedTrip.name}
                 </h1>
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 text-sm sm:text-base">
                   <div className="flex items-center gap-2 font-bold">
                     <FaMapMarkerAlt className="text-red-600 text-lg" />
-                    <span className="break-words">{selectedTrip.tripLocation}</span>
+                    <span className="break-words">{selectedTrip.location}</span>
                   </div>
                   <div className="flex items-center gap-2 font-bold">
                     <FaCalendarAlt className="text-indigo-900 text-lg" />
@@ -80,10 +79,10 @@ const TripDetailsPage = () => {
                 </div>
               </div>
 
-              {selectedTrip.description && (
+              {selectedTrip.notes && (
                 <div className="p-4 bg-gray-100 border-2 border-black rounded">
                   <p className="text-xs font-black uppercase text-gray-600 mb-2">Description</p>
-                  <p className="text-gray-800 font-bold whitespace-pre-wrap break-words">{selectedTrip.description}</p>
+                  <p className="text-gray-800 font-bold whitespace-pre-wrap break-words">{selectedTrip.notes}</p>
                 </div>
               )}
             </div>
@@ -94,21 +93,21 @@ const TripDetailsPage = () => {
                 Itinerary Details
               </h3>
 
-              {selectedTrip.description && (
+              {selectedTrip.notes && (
                 <div className="mb-6">
                   <h4 className="font-bold text-gray-700 mb-2">Description</h4>
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedTrip.description}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{selectedTrip.notes}</p>
                 </div>
               )}
 
               {/* Activity Details */}
-              {selectedTrip.activityData && selectedTrip.activityData.length > 0 && (
+              {activityData && activityData.length > 0 && (
                 <div className="mb-6 p-4 bg-yellow-100 border-4 border-black rounded">
                   <h4 className="font-black text-lg uppercase mb-4">🗓️ Activities</h4>
                   <div className="space-y-4">
-                    {selectedTrip.activityData.map((activity) => (
+                    {activityData.map((activity) => (
                       <div key={activity.id} className="p-3 bg-white border-2 border-black rounded">
-                        <p className="font-black text-base mb-2">{activity.activityName}</p>
+                        <p className="font-black text-base mb-2">{activity.title}</p>
                         <div className="text-sm font-bold text-gray-700 space-y-1">
                           <p>📅 Start: {activity.startDate} {activity.startTime}</p>
                           <p>📅 End: {activity.endDate} {activity.endTime}</p>
@@ -126,70 +125,70 @@ const TripDetailsPage = () => {
               )}
 
               {/* Flight Details */}
-              {selectedTrip.flightData && selectedTrip.flightData.flights.length > 0 && (
+              {flightData && flightData.flights.length > 0 && (
                 <div className="mb-6 p-4 bg-blue-100 border-4 border-black rounded">
                   <h4 className="font-black text-lg uppercase mb-4">✈️ Flights</h4>
                   <div className="space-y-4">
-                    {selectedTrip.flightData.flights.map((flight) => (
+                    {flightData.flights.map((flight) => (
                       <div key={flight.id} className="p-3 bg-white border-2 border-black rounded">
-                        <p className="font-black text-base mb-2">{flight.customName || `Flight ${flight.id}`}</p>
+                        <p className="font-black text-base mb-2">{flight.title || `Flight ${flight.id}`}</p>
                         <div className="text-sm font-bold text-gray-700 space-y-1">
                           {flight.airline && <p>✈️ Airline: {flight.airline}</p>}
                           {flight.flightNumber && <p>🔢 Flight #: {flight.flightNumber}</p>}
                           {flight.departure && <p>📅 Departure: {flight.departure}</p>}
-                          {flight.seats && <p>💺 Seats: {flight.seats}</p>}
+                          {flight.numberOfGuests && <p>💺 Seats: {flight.numberOfGuests}</p>}
                         </div>
                       </div>
                     ))}
-                    {selectedTrip.flightData.totalCost && (
-                      <p className="font-black text-lg mt-2">💰 Total Cost: ${selectedTrip.flightData.totalCost}</p>
+                    {flightData.totalCost && (
+                      <p className="font-black text-lg mt-2">💰 Total Cost: ${flightData.totalCost}</p>
                     )}
                   </div>
                 </div>
               )}
 
               {/* Car Rental Details */}
-              {selectedTrip.carRentalData && selectedTrip.carRentalData.rentalAgency && (
+              {carRentalData && carRentalData.title && (
                 <div className="mb-6 p-4 bg-green-100 border-4 border-black rounded">
                   <h4 className="font-black text-lg uppercase mb-4">🚗 Car Rental</h4>
                   <div className="p-3 bg-white border-2 border-black rounded">
-                    <p className="font-black text-base mb-2">{selectedTrip.carRentalData.rentalAgency}</p>
+                    <p className="font-black text-base mb-2">{carRentalData.title}</p>
                     <div className="text-sm font-bold text-gray-700 space-y-1">
-                      <p>📅 Pickup: {selectedTrip.carRentalData.pickupDate} at {selectedTrip.carRentalData.pickupTime}</p>
-                      <p>📅 Dropoff: {selectedTrip.carRentalData.dropoffDate} at {selectedTrip.carRentalData.dropoffTime}</p>
-                      {selectedTrip.carRentalData.confirmationNumber && <p>🔖 Confirmation: {selectedTrip.carRentalData.confirmationNumber}</p>}
-                      {selectedTrip.carRentalData.website && <p>🌐 Website: {selectedTrip.carRentalData.website}</p>}
-                      {selectedTrip.carRentalData.email && <p>✉️ Email: {selectedTrip.carRentalData.email}</p>}
+                      <p>📅 Pickup: {carRentalData.pickupDate} at {carRentalData.pickupTime}</p>
+                      <p>📅 Dropoff: {carRentalData.dropoffDate} at {carRentalData.dropoffTime}</p>
+                      {carRentalData.confirmationNumber && <p>🔖 Confirmation: {carRentalData.confirmationNumber}</p>}
+                      {carRentalData.website && <p>🌐 Website: {carRentalData.website}</p>}
+                      {carRentalData.email && <p>✉️ Email: {carRentalData.email}</p>}
                       
-                      {selectedTrip.carRentalData.pickupLocation?.location && (
+                      {carRentalData.pickupLocation?.location && (
                         <div className="mt-3 pt-3 border-t-2 border-gray-300">
                           <p className="font-black mb-1">Pickup Location</p>
-                          <p>{selectedTrip.carRentalData.pickupLocation.location}</p>
-                          {selectedTrip.carRentalData.pickupLocation.address && <p>{selectedTrip.carRentalData.pickupLocation.address}</p>}
-                          {selectedTrip.carRentalData.pickupLocation.phone && <p>📞 {selectedTrip.carRentalData.pickupLocation.phone}</p>}
+                          <p>{carRentalData.pickupLocation.location}</p>
+                          {carRentalData.pickupLocation.address && <p>{carRentalData.pickupLocation.address}</p>}
+                          {carRentalData.pickupLocation.phone && <p>📞 {carRentalData.pickupLocation.phone}</p>}
                         </div>
                       )}
 
-                      {selectedTrip.carRentalData.dropoffLocation?.location && (
+                      {carRentalData.dropoffLocation?.location && (
                         <div className="mt-3 pt-3 border-t-2 border-gray-300">
                           <p className="font-black mb-1">Dropoff Location</p>
-                          <p>{selectedTrip.carRentalData.dropoffLocation.location}</p>
-                          {selectedTrip.carRentalData.dropoffLocation.address && <p>{selectedTrip.carRentalData.dropoffLocation.address}</p>}
-                          {selectedTrip.carRentalData.dropoffLocation.phone && <p>📞 {selectedTrip.carRentalData.dropoffLocation.phone}</p>}
+                          <p>{carRentalData.dropoffLocation.location}</p>
+                          {carRentalData.dropoffLocation.address && <p>{carRentalData.dropoffLocation.address}</p>}
+                          {carRentalData.dropoffLocation.phone && <p>📞 {carRentalData.dropoffLocation.phone}</p>}
                         </div>
                       )}
 
-                      {selectedTrip.carRentalData.rentalInfo?.carType && (
+                      {carRentalData.rentalInfo?.carType && (
                         <div className="mt-3 pt-3 border-t-2 border-gray-300">
                           <p className="font-black mb-1">Vehicle Info</p>
-                          <p>🚙 Type: {selectedTrip.carRentalData.rentalInfo.carType}</p>
-                          {selectedTrip.carRentalData.rentalInfo.mileageCharges && <p>💰 Mileage: ${selectedTrip.carRentalData.rentalInfo.mileageCharges}</p>}
-                          {selectedTrip.carRentalData.rentalInfo.carDetails && <p>ℹ️ Details: {selectedTrip.carRentalData.rentalInfo.carDetails}</p>}
+                          <p>🚙 Type: {carRentalData.rentalInfo.carType}</p>
+                          {carRentalData.rentalInfo.mileageCharges && <p>💰 Mileage: ${carRentalData.rentalInfo.mileageCharges}</p>}
+                          {carRentalData.rentalInfo.carDetails && <p>ℹ️ Details: {carRentalData.rentalInfo.carDetails}</p>}
                         </div>
                       )}
 
-                      {selectedTrip.carRentalData.totalCost && (
-                        <p className="font-black text-lg mt-3">💰 Total Cost: ${selectedTrip.carRentalData.totalCost}</p>
+                      {carRentalData.totalCost && (
+                        <p className="font-black text-lg mt-3">💰 Total Cost: ${carRentalData.totalCost}</p>
                       )}
                     </div>
                   </div>
@@ -197,13 +196,13 @@ const TripDetailsPage = () => {
               )}
 
               {/* Lodging Details */}
-              {selectedTrip.lodgingData && selectedTrip.lodgingData.length > 0 && (
+              {lodgingData && lodgingData.length > 0 && (
                 <div className="mb-6 p-4 bg-purple-100 border-4 border-black rounded">
                   <h4 className="font-black text-lg uppercase mb-4">🏨 Lodging</h4>
                   <div className="space-y-4">
-                    {selectedTrip.lodgingData.map((lodging) => (
+                    {lodgingData.map((lodging) => (
                       <div key={lodging.id} className="p-3 bg-white border-2 border-black rounded">
-                        <p className="font-black text-base mb-2">{lodging.lodgingName}</p>
+                        <p className="font-black text-base mb-2">{lodging.title}</p>
                         <div className="text-sm font-bold text-gray-700 space-y-1">
                           <p>📅 Check-in: {lodging.startDate} {lodging.startTime}</p>
                           <p>📅 Check-out: {lodging.endDate} {lodging.endTime}</p>

@@ -12,11 +12,11 @@ const EditTripPage = () => {
 
 
   // Trip main fields
-  const [tripName, setTripName] = useState('')
-  const [tripLocation, setTripLocation] = useState('')
+  const [name, setTripName] = useState('')
+  const [location, setTripLocation] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [description, setDescription] = useState('')
+  const [notes, setDescription] = useState('')
 
   // Flights (array) and total cost
   const [flights, setFlights] = useState([])
@@ -34,11 +34,11 @@ const EditTripPage = () => {
 
   useEffect(() => {
     if (selectedTrip) {
-      setTripName(selectedTrip.tripName || '')
-      setTripLocation(selectedTrip.tripLocation || '')
+      setTripName(selectedTrip.name || '')
+      setTripLocation(selectedTrip.location || '')
       setStartDate(selectedTrip.startDate || '')
       setEndDate(selectedTrip.endDate || '')
-      setDescription(selectedTrip.description || '')
+      setDescription(selectedTrip.notes || '')
       // Flights - check context first (for newly added items), then fall back to selectedTrip
       if (flightData?.flights?.length > 0) {
         setFlights(flightData.flights.map(f => ({ ...f })))
@@ -146,11 +146,11 @@ const EditTripPage = () => {
     if (!selectedTrip) return
     const updatedTrip = {
       ...selectedTrip,
-      tripName,
-      tripLocation,
+      name,
+      location,
       startDate,
       endDate,
-      description,
+      notes,
       flightData: flights.length > 0 ? { flights, totalCost: flightTotalCost } : undefined,
       carRentalData: carRental && carRental.rentalAgency ? carRental : undefined,
       activityData: activities.length > 0 ? activities : undefined,
@@ -172,9 +172,9 @@ const EditTripPage = () => {
               <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Trip Name</label>
               <input
                 type="text"
-                id="tripName"
-                name="tripName"
-                value={tripName}
+                id="name"
+                name="name"
+                value={name}
                 onChange={e => setTripName(e.target.value)}
                 className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 placeholder="eg. Family Holiday"
@@ -186,9 +186,9 @@ const EditTripPage = () => {
               <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Trip Location</label>
               <input
                 type="text"
-                id="tripLocation"
-                name="tripLocation"
-                value={tripLocation}
+                id="location"
+                name="location"
+                value={location}
                 onChange={e => setTripLocation(e.target.value)}
                 className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 placeholder="eg. Hagerstown, Maryland"
@@ -227,9 +227,9 @@ const EditTripPage = () => {
             <div className="mb-6 sm:mb-8">
               <label htmlFor="description" className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Description</label>
               <textarea
-                id="description"
-                name="description"
-                value={description}
+                id="notes"
+                name="notes"
+                value={notes}
                 onChange={e => setDescription(e.target.value)}
                 className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 rows="4"
@@ -300,7 +300,7 @@ const EditTripPage = () => {
                 <h3 className="text-lg sm:text-xl font-black uppercase mb-4">🚗 Edit Car Rental Details</h3>
                 <div className="mb-4 sm:mb-6">
                   <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Rental Agency</label>
-                  <input type="text" name="rentalAgency" value={carRental.rentalAgency} onChange={handleCarRentalChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Rental Agency" />
+                  <input type="text" name="title" value={carRental.title} onChange={handleCarRentalChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Rental Agency" />
                 </div>
                 <div className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -474,7 +474,7 @@ const EditTripPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Lodging Name</label>
-                        <input type="text" value={lodging.lodgingName} onChange={e => handleLodgingChange(lodging.id, 'lodgingName', e.target.value)} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Lodging name" />
+                        <input type="text" value={lodging.title} onChange={e => handleLodgingChange(lodging.id, 'title', e.target.value)} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Lodging name" />
                       </div>
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Venue</label>

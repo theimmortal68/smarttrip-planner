@@ -69,6 +69,8 @@ async function loginUser({ email, password }) {
     { expiresIn: '1d' } // or '3d' if you prefer, just be consistent
   );
 
+  console.log("Password verified");
+
   return { user, token };
 }
 

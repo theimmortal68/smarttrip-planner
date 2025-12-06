@@ -8,7 +8,7 @@ const AddActivity = () => {
   const { activityData = [], setActivityData, selectedTrip } = _ctx
 
   const [form, setForm] = useState({
-    activityName: '',
+    title: '',
     startDate: '',
     startTime: '',
     endDate: '',
@@ -33,7 +33,7 @@ const AddActivity = () => {
     e.preventDefault()
     setActivityData(prev => [...prev, { ...form, id: Date.now() }])
     setForm({
-      activityName: '',
+      title: '',
       startDate: '',
       startTime: '',
       endDate: '',
@@ -63,7 +63,7 @@ const AddActivity = () => {
             {/* Activity Name */}
             <div className="mb-4 sm:mb-6">
               <label className="block text-gray-900 font-black uppercase mb-2 sm:mb-3 text-xs sm:text-sm">Activity Name</label>
-              <input type="text" name="activityName" value={form.activityName} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Activity Name" />
+              <input type="text" name="title" value={form.title} onChange={handleChange} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Activity Name" />
             </div>
 
             {/* Start Date & Time */}
