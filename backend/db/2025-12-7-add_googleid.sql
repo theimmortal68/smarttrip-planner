@@ -5,6 +5,7 @@ This updates the user table to support Google OAUTH Sign-Ups
 Changes:
 1. Modify user table to all NULL password hash
 2. Add a field in user table for googleId
+3. Modify trips table to change location_name to location
 
 Run this ONCE on existing databases.
 ========================================
@@ -21,3 +22,6 @@ ALTER TABLE users MODIFY COLUMN password_hash VARCHAR(255) NULL;
 
 -- Add google_id column (nullable and unique)
 ALTER TABLE users ADD COLUMN google_id VARCHAR(255) NULL UNIQUE;
+
+-- Change location_name to location
+ALTER TABLE trips CHANGE COLUMN location_name location VARCHAR(255);
