@@ -59,17 +59,31 @@ const Navbar = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
-          <NavLink className="flex flex-shrink-0 items-center" to="/homepage">
-            <div className="bg-white border-4 border-black rounded-full p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
-              <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" />
-                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" />
-              </svg>
+          {isAuthPage ? (
+            <div className="flex flex-shrink-0 items-center cursor-default">
+              <div className="bg-white border-4 border-black rounded-full p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" />
+                </svg>
+              </div>
+              <span className="hidden sm:block text-white text-xl sm:text-2xl font-black uppercase ml-2"
+                >SmarTrip Planner</span
+              >
             </div>
-            <span className="hidden sm:block text-white text-xl sm:text-2xl font-black uppercase ml-2"
-              >SmarTrip Planner</span
-            >
-          </NavLink>
+          ) : (
+            <NavLink className="flex flex-shrink-0 items-center" to="/homepage">
+              <div className="bg-white border-4 border-black rounded-full p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
+                <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" />
+                </svg>
+              </div>
+              <span className="hidden sm:block text-white text-xl sm:text-2xl font-black uppercase ml-2"
+                >SmarTrip Planner</span
+              >
+            </NavLink>
+          )}
 
           {/* Mobile Title - Centered */}
           <span className="sm:hidden text-white text-lg font-black uppercase absolute left-1/2 transform -translate-x-1/2"
@@ -77,6 +91,7 @@ const Navbar = () => {
           >
 
           {/* Desktop Navigation */}
+          {!isAuthPage && (
           <div className="hidden md:flex items-center space-x-2">
             <NavLink
               to="/homepage"
@@ -95,7 +110,6 @@ const Navbar = () => {
             </NavLink>
 
             {/* Profile Button with Dropdown - Desktop */}
-            {!isAuthPage && (
             <div className="relative ml-4" ref={dropdownRef}>
               <button
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
@@ -133,10 +147,11 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-            )}
           </div>
+          )}
 
           {/* Mobile Hamburger Button */}
+          {!isAuthPage && (
           <button
             onClick={() => setShowMobileMenu(!showMobileMenu)}
             className="md:hidden w-12 h-12 bg-white border-4 border-black rounded flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
@@ -147,11 +162,12 @@ const Navbar = () => {
               <FaBars className="text-indigo-900 text-xl" />
             )}
           </button>
+          )}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {showMobileMenu && (
+      {!isAuthPage && showMobileMenu && (
         <div
           ref={mobileMenuRef}
           className="md:hidden bg-indigo-800 border-t-4 border-black shadow-[0px_6px_0px_0px_rgba(0,0,0,1)]"
@@ -192,7 +208,6 @@ const Navbar = () => {
             </NavLink>
 
             {/* Mobile Profile Section */}
-            {!isAuthPage && (
             <div className="pt-4 border-t-4 border-black space-y-3">
               <div className="px-4 py-2">
                 <p className="font-black text-white uppercase text-sm">Signed in as</p>
@@ -217,7 +232,6 @@ const Navbar = () => {
                 <FaSignOutAlt /> Log Out
               </button>
             </div>
-            )}
           </div>
         </div>
       )}
