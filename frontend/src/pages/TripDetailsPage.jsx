@@ -3,6 +3,17 @@ import { Link, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa'
 import { TripContext } from '../context/TripContext'
 
+// Format date from ISO string to readable format
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  })
+}
+
 const TripDetailsPage = () => {
   const navigate = useNavigate()
   const ctx = useContext(TripContext)
@@ -78,7 +89,7 @@ const TripDetailsPage = () => {
                   </div>
                   <div className="flex items-center gap-2 font-bold">
                     <FaCalendarAlt className="text-indigo-900 text-lg" />
-                    <span>{selectedTrip.startDate} → {selectedTrip.endDate}</span>
+                    <span>{formatDate(selectedTrip.startDate)} → {formatDate(selectedTrip.endDate)}</span>
                   </div>
                 </div>
               </div>
