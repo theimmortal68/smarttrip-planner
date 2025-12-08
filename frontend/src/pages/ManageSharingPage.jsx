@@ -114,7 +114,17 @@ const ManageSharingPage = () => {
       }
 
       const membersData = await membersRes.json()
-      setTripMembers({ ...tripMembers, [tripId]: membersData || [] })
+      // Transform backend format (firstName, lastName, userId) to match component format (first_name, last_name, user_id)
+      const transformedMembers = membersData.map(m => ({
+        id: m.id,
+        user_id: m.userId,
+        first_name: m.firstName,
+        last_name: m.lastName,
+        email: m.email,
+        role: m.role,
+        joined_at: m.joinedAt
+      }))
+      setTripMembers({ ...tripMembers, [tripId]: transformedMembers || [] })
 
       // Fetch all users for search
       // Backend should return: [{ id, firstName, lastName, email }, ...]
@@ -195,7 +205,16 @@ const ManageSharingPage = () => {
 
       if (membersRes.ok) {
         const membersData = await membersRes.json()
-        setTripMembers({ ...tripMembers, [tripId]: membersData || [] })
+        const transformedMembers = membersData.map(m => ({
+          id: m.id,
+          user_id: m.userId,
+          first_name: m.firstName,
+          last_name: m.lastName,
+          email: m.email,
+          role: m.role,
+          joined_at: m.joinedAt
+        }))
+        setTripMembers({ ...tripMembers, [tripId]: transformedMembers || [] })
       }
       
       // Show notification
@@ -252,7 +271,16 @@ const ManageSharingPage = () => {
 
       if (membersRes.ok) {
         const membersData = await membersRes.json()
-        setTripMembers({ ...tripMembers, [tripId]: membersData || [] })
+        const transformedMembers = membersData.map(m => ({
+          id: m.id,
+          user_id: m.userId,
+          first_name: m.firstName,
+          last_name: m.lastName,
+          email: m.email,
+          role: m.role,
+          joined_at: m.joinedAt
+        }))
+        setTripMembers({ ...tripMembers, [tripId]: transformedMembers || [] })
       }
       
       // Show notification
@@ -310,7 +338,16 @@ const ManageSharingPage = () => {
 
       if (membersRes.ok) {
         const membersData = await membersRes.json()
-        setTripMembers({ ...tripMembers, [tripId]: membersData || [] })
+        const transformedMembers = membersData.map(m => ({
+          id: m.id,
+          user_id: m.userId,
+          first_name: m.firstName,
+          last_name: m.lastName,
+          email: m.email,
+          role: m.role,
+          joined_at: m.joinedAt
+        }))
+        setTripMembers({ ...tripMembers, [tripId]: transformedMembers || [] })
       }
       
       // Show role change notification
@@ -555,7 +592,9 @@ const ManageSharingPage = () => {
                       <FaUser className="text-lg sm:text-xl text-gray-700 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="font-black text-sm sm:text-base truncate">
-                          {member.first_name} {member.last_name}
+                          {member.first_name && member.last_name 
+                            ? `${member.first_name} ${member.last_name}`
+                            : 'Name not set'}
                           {currentUser && member.user_id === currentUser.id && (
                             <span className="ml-2 text-xs font-bold text-gray-600">(You)</span>
                           )}
