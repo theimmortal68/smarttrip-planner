@@ -1,23 +1,23 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FaCalendarAlt, FaPlane, FaHotel, FaCar } from 'react-icons/fa'
 import { TripContext } from '../context/TripContext'
 
 const AddTripPage = () => {
   const navigate = useNavigate()
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [name, setTripName] = useState('')
-  const [location, setTripLocation] = useState('')
-  const [notes, setDescription] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const [showWarningModal, setShowWarningModal] = useState(false)
+  const [pendingNavigation, setPendingNavigation] = useState(null)
   const _ctx = useContext(TripContext) || {}
   const { 
     flightData = { flights: [], totalCost: '' }, 
     carRentalData = {}, 
     activityData = [], 
-    lodgingData = [], 
+    lodgingData = [],
+    tripFormData = {},
+    setTripFormData,
+    clearTripFormData,
     addTrip, 
     clearFlightData, 
     clearCarRentalData, 
@@ -25,21 +25,65 @@ const AddTripPage = () => {
     setLodgingData 
   } = _ctx
 
-  // Convert mm/dd/yyyy to yyyy-mm-dd
-  const formatDateToInput = (dateStr) => {
-    if (!dateStr) return ''
-    const parts = dateStr.split('/')
-    if (parts.length !== 3) return ''
-    const [month, day, year] = parts
-    return `${year}-${month}-${day}`
+  // Destructure trip form data from context
+  const { name = '', location: tripLocation = '', startDate = '', endDate = '', notes = '' } = tripFormData
+
+  // Update handlers to use context
+  const handleFieldChange = (field, value) => {
+    setTripFormData({ ...tripFormData, [field]: value })
   }
 
-  const handleStartDateChange = (e) => {
-    setStartDate(e.target.value)
+  // Intercept navigation attempts
+  useEffect(() => {
+    const hasUnsavedData = () => {
+      return name || tripLocation || startDate || endDate || notes || 
+             flightData.flights.length > 0 || carRentalData.title || 
+             activityData.length > 0 || lodgingData.length > 0
+    }
+
+    const handleClick = (e) => {
+      // Check if clicked element is a link
+      const link = e.target.closest('a')
+      if (!link) return
+
+      const href = link.getAttribute('href')
+      if (!href) return
+
+      // Allow itinerary pages
+      const itineraryPaths = ['add-flight', 'add-lodging', 'add-activity', 'add-car']
+      if (itineraryPaths.some(path => href.includes(path))) {
+        return
+      }
+
+      // Check for unsaved data
+      if (hasUnsavedData()) {
+        e.preventDefault()
+        setPendingNavigation(href)
+        setShowWarningModal(true)
+      }
+    }
+
+    document.addEventListener('click', handleClick, true) // Use capture phase
+    return () => document.removeEventListener('click', handleClick, true)
+  }, [name, tripLocation, startDate, endDate, notes, flightData, carRentalData, activityData, lodgingData])
+
+  // Confirm leave without saving
+  const confirmLeave = () => {
+    clearFlightData()
+    clearCarRentalData()
+    setActivityData([])
+    setLodgingData([])
+    clearTripFormData()
+    setShowWarningModal(false)
+    if (pendingNavigation) {
+      navigate(pendingNavigation)
+    }
   }
 
-  const handleEndDateChange = (e) => {
-    setEndDate(e.target.value)
+  // Cancel leave
+  const cancelLeave = () => {
+    setShowWarningModal(false)
+    setPendingNavigation(null)
   }
 
   const handleSubmit = async (e) => {
@@ -50,7 +94,7 @@ const AddTripPage = () => {
     // Create trip object with all data
     const tripData = {
       name,
-      location,
+      location: tripLocation,
       startDate,
       endDate,
       notes,
@@ -64,18 +108,12 @@ const AddTripPage = () => {
       // Save trip to context (which now calls the backend)
       await addTrip(tripData)
 
-      // Clear flight, car rental, activity, and lodging data
+      // Clear all trip data after successful save
       clearFlightData()
       clearCarRentalData()
       setActivityData([])
       setLodgingData([])
-
-      // Reset form
-      setTripName('')
-      setTripLocation('')
-      setStartDate('')
-      setEndDate('')
-      setDescription('')
+      clearTripFormData()
 
       // Redirect to upcoming trips page
       navigate('/upcoming-trips-page')
@@ -105,7 +143,7 @@ const AddTripPage = () => {
                 id="name"
                 name="name"
                 value={name}
-                onChange={(e) => setTripName(e.target.value)}
+                onChange={(e) => handleFieldChange('name', e.target.value)}
                 className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 placeholder="eg. Family Holiday"
                 required
@@ -120,10 +158,10 @@ const AddTripPage = () => {
                 type="text"
                 id="location"
                 name="location"
-                value={location}
-                onChange={(e) => setTripLocation(e.target.value)}
-                className="border-4 border-black rounded w-full py-3 px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                placeholder="eg. Hagerstown, Maryland"
+                value={tripLocation}
+                onChange={(e) => handleFieldChange('location', e.target.value)}
+                className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                placeholder="eg. Paris, France"
                 required
               />
             </div>
@@ -137,16 +175,9 @@ const AddTripPage = () => {
                 id="startDate"
                 name="startDate"
                 value={startDate}
-                onChange={handleStartDateChange}
+                onChange={(e) => handleFieldChange('startDate', e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
                 required
-                onBlur={(e) => {
-                  const textValue = e.target.value
-                  if (textValue && !textValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                    const dateValue = formatDateToInput(textValue)
-                    if (dateValue) setStartDate(dateValue)
-                  }
-                }}
                 className="border-4 border-black rounded w-full py-3 px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 placeholder="mm/dd/yyyy"
               />
@@ -161,16 +192,9 @@ const AddTripPage = () => {
                 id="endDate"
                 name="endDate"
                 value={endDate}
-                onChange={handleEndDateChange}
+                onChange={(e) => handleFieldChange('endDate', e.target.value)}
                 min={startDate || new Date().toISOString().split('T')[0]}
                 required
-                onBlur={(e) => {
-                  const textValue = e.target.value
-                  if (textValue && !textValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                    const dateValue = formatDateToInput(textValue)
-                    if (dateValue) setEndDate(dateValue)
-                  }
-                }}
                 className="border-4 border-black rounded w-full py-3 px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 placeholder="mm/dd/yyyy"
               />
@@ -186,7 +210,7 @@ const AddTripPage = () => {
                 id="notes"
                 name="notes"
                 value={notes}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => handleFieldChange('notes', e.target.value)}
                 className="border-4 border-black rounded w-full py-3 px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 rows="4"
                 placeholder="Add daily activities etc."
@@ -336,6 +360,32 @@ const AddTripPage = () => {
         </div>
       </div>
     </section>
+
+      {/* Warning Modal */}
+      {showWarningModal && (
+        <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-yellow-300 border-4 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-md w-full p-6">
+            <h3 className="text-2xl font-black uppercase mb-4 text-black">⚠️ Warning!</h3>
+              <p className="text-black font-bold mb-6">
+                You have unsaved trip data. If you leave this page without saving, all your changes will be lost.
+              </p>
+            <div className="flex gap-3 flex-col sm:flex-row">
+              <button
+                onClick={cancelLeave}
+                className="flex-1 bg-white hover:bg-gray-100 text-black font-black uppercase py-3 px-4 border-4 border-black rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+              >
+                Stay & Continue
+              </button>
+              <button
+                onClick={confirmLeave}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-black uppercase py-3 px-4 border-4 border-black rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+              >
+                Leave Without Saving
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

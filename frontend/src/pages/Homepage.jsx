@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import Hero from '../components/Hero'
 import AddTrip from '../components/AddTrip'
 import RecentUpcomingTrips from '../components/RecentUpcomingTrips'
@@ -7,8 +7,15 @@ import { TripContext } from '../context/TripContext'
 
 const Homepage = () => {
   const _ctx = useContext(TripContext) || {}
-  const { upcomingTrips } = _ctx
+  const { upcomingTrips, clearTripFormData } = _ctx
   const hasTrips = upcomingTrips && upcomingTrips.length > 0
+
+  // Clear trip form data when navigating away from add-trip flow
+  useEffect(() => {
+    if (clearTripFormData) {
+      clearTripFormData()
+    }
+  }, [])
 
   return (
     <>

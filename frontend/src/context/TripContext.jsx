@@ -53,6 +53,15 @@ export const TripProvider = ({ children }) => {
   // Activity data (array of activities)
   const [activityData, setActivityData] = useState([])
 
+  // Trip form data (for Add Trip page persistence)
+  const [tripFormData, setTripFormData] = useState({
+    name: '',
+    location: '',
+    startDate: '',
+    endDate: '',
+    notes: ''
+  })
+
   const [upcomingTrips, setUpcomingTrips] = useState([])
   const [selectedTrip, setSelectedTrip] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -419,6 +428,16 @@ export const TripProvider = ({ children }) => {
     })
   }
 
+  const clearTripFormData = () => {
+    setTripFormData({
+      name: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      notes: ''
+    })
+  }
+
   return (
     <TripContext.Provider value={{
       flightData,
@@ -429,6 +448,9 @@ export const TripProvider = ({ children }) => {
       setActivityData,
       lodgingData,
       setLodgingData,
+      tripFormData,
+      setTripFormData,
+      clearTripFormData,
       upcomingTrips,
       addTrip,
       updateTrip,

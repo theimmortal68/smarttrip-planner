@@ -6,9 +6,16 @@ import { API_BASE_URL } from '../utils/api';
 
 const UpcomingTripsPage = () => {
   const _ctx = useContext(TripContext) || {}
-  const { upcomingTrips = [], setSelectedTrip, tripMembers = {}, setTripMembers } = _ctx
+  const { upcomingTrips = [], setSelectedTrip, tripMembers = {}, setTripMembers, clearTripFormData } = _ctx
   const navigate = useNavigate()
   const [currentUser, setCurrentUser] = useState(null)
+
+  // Clear trip form data when navigating away from add-trip flow
+  useEffect(() => {
+    if (clearTripFormData) {
+      clearTripFormData()
+    }
+  }, [])
 
   // COMMENTED OUT: Mock data for testing - replaced with backend fetch
   // const mockCurrentUser = { id: 1, first_name: 'Alice', last_name: 'Johnson', email: 'alice.johnson@example.com' }

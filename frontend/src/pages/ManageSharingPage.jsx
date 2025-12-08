@@ -274,15 +274,24 @@ const ManageSharingPage = () => {
         return
       }
 
-      // Update member role
-      // Backend should accept: { role: string }
-      const res = await fetch(`${API_BASE_URL}/trips/${tripId}/members/${memberId}`, {
+      // Find the member's email to update their role
+      const member = members.find(m => m.id === memberId)
+      if (!member) {
+        throw new Error('Member not found')
+      }
+
+      // Update member role - backend expects email and role in the body
+      // The POST /trips/:tripId/members endpoint handles both add and update
+      const res = await fetch(`${API_BASE_URL}/trips/${tripId}/members`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ role: newRole })
+        body: JSON.stringify({ 
+          email: member.email,
+          role: newRole 
+        })
       })
 
       if (!res.ok) {

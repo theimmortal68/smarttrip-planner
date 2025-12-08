@@ -16,6 +16,7 @@ const TripDetailsPage = () => {
   // Mock user role (replace with actual API call when backend is ready)
   // For testing: owner/co_owner can delete and edit, editor can only edit, viewer can only view
   const [userRole, setUserRole] = useState('owner') // Change this to test different roles
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   // Load itinerary items when trip is selected
   useEffect(() => {
@@ -239,23 +240,7 @@ const TripDetailsPage = () => {
               )}
               {canDelete() && (
               <button
-                onClick={async () => {
-                  const confirmed = window.confirm('Are you sure you want to delete this trip? This action cannot be undone.')
-                  if (!confirmed) return
-
-                  try {
-                    const success = await deleteTrip(selectedTrip.id)
-                    if (success) {
-                      setSelectedTrip(null)
-                      navigate('/upcoming-trips-page')
-                    } else {
-                      alert('Failed to delete trip. Please try again.')
-                    }
-                  } catch (err) {
-                    console.error('Error deleting trip:', err)
-                    alert('Failed to delete trip. Please try again.')
-                  }
-                }}
+                onClick={() => setShowDeleteModal(true)}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white font-black uppercase py-4 px-6 border-4 border-black rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
               >
                 Delete Trip
@@ -266,6 +251,52 @@ const TripDetailsPage = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-red-300 border-4 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-red-600 border-4 border-black rounded w-12 h-12 flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-3xl font-black leading-none">X</span>
+              </div>
+              <h3 className="text-2xl font-black uppercase text-black">Delete Trip?</h3>
+            </div>
+            <p className="text-black font-bold mb-6">
+              Are you sure you want to delete "{selectedTrip.name}"? This action cannot be undone and will permanently remove all trip data and itinerary items.
+            </p>
+            <div className="flex gap-3 flex-col sm:flex-row">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 bg-white text-black font-black uppercase px-4 py-3 border-4 border-black rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const success = await deleteTrip(selectedTrip.id)
+                    if (success) {
+                      setSelectedTrip(null)
+                      navigate('/upcoming-trips-page')
+                    } else {
+                      alert('Failed to delete trip. Please try again.')
+                      setShowDeleteModal(false)
+                    }
+                  } catch (err) {
+                    console.error('Error deleting trip:', err)
+                    alert('Failed to delete trip. Please try again.')
+                    setShowDeleteModal(false)
+                  }
+                }}
+                className="flex-1 bg-red-600 text-white font-black uppercase px-4 py-3 border-4 border-black rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+              >
+                Yes, Delete Trip
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
