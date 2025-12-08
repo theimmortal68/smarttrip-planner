@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa';
 import { API_BASE_URL } from '../utils/api'
 
 const SignUpPage = () => {
@@ -245,12 +245,28 @@ const SignUpPage = () => {
               </div>
             )}
 
-            <div>
+            <div className="mb-4">
               <button
                 className="bg-black text-white font-black uppercase py-3 px-6 rounded w-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
                 type="submit"
               >
                 Create Account
+              </button>
+            </div>
+
+            <div className='flex flex-row items-center mb-6'>
+                <div className='flex-grow border-t-4 border-black'></div>
+                <p className='text-black font-black uppercase text-xs px-4'>or sign up with</p>
+                <div className='flex-grow border-t-4 border-black'></div>    
+            </div>
+            
+            <div>
+              <button
+                className="bg-green-400 text-black font-black uppercase py-3 px-6 rounded w-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+                type="button"
+                onClick={() => { window.location.href = `${API_BASE_URL}/auth/google`; }}
+              >
+                <FaGoogle className="inline text-xl mr-2 mb-1" /> Google
               </button>
             </div>
           </form>
