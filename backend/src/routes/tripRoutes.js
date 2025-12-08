@@ -415,7 +415,7 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
         confirmation_number: true,
         total_cost: true,
         number_of_guests: true,
-        location: true,
+        location_name: true,
         activity_type: true,
         google_place_id: true,
         notes: true,
@@ -474,7 +474,7 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
         id: true,
         itinerary_item_id: true,
         activity_type: true,
-        // difficulty_level: true,
+        //difficulty_level: true,
         //meeting_location: true,
         //meeting_instructions: true,
         //certification_required: true,
@@ -516,8 +516,8 @@ router.get("/:tripId/itinerary", auth, async (req, res, next) => {
         },
         rentalInfo: {
           carType: c.car_type,
-          mileageCharges: null,
-          carDetails: null
+          mileageCharges: c.mileage_charges,
+          carDetails: c.car_details,
         }
       };
     }
@@ -762,9 +762,8 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
             dropoff_address: carCreate.dropoffLocation?.address ?? null,
             dropoff_phone: carCreate.dropoffLocation?.phone ?? null,
             car_type: carCreate.rentalInfo?.carType ?? null,
-            // UPDATE DB: Uncomment here when db aligned with frontend or vv
-            // mileage_charges: carCreate.rentalInfo?.mileageCharges ?? null,
-            // car_details:     carCreate.rentalInfo?.carDetails     ?? null,
+            mileage_charges: carCreate.rentalInfo?.mileageCharges ?? null,
+            car_details:     carCreate.rentalInfo?.carDetails     ?? null,
           },
           select: {
             id: true,
@@ -776,9 +775,8 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
             dropoff_address: true,
             dropoff_phone: true,
             car_type: true,
-            // UPDATE DB: Uncomment here when db aligned with frontend or vv
-            //mileage_charges: true,
-            //car_details: true,
+            mileage_charges: true,
+            car_details: true,
           },
         });
         carRental = {
@@ -794,9 +792,8 @@ router.post("/:tripId/itinerary", auth, async (req, res, next) => {
           },
           rentalInfo: {
             carType: carCreate.car_type,
-            // UPDATE DB: When added to the DB, add carCreate.mileage_charges, carCreate.car_details,
-            mileageCharges: null,
-            carDetails: null,
+            mileageCharges: carCreate.mileage_charges,
+            carDetails: carCreate.car_details,
           }
         };
         break;
@@ -1178,12 +1175,10 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
                 dropoff_phone:
                   carUpdates.dropoffLocation?.phone ?? existingCar.dropoff_phone,
                 car_type: carUpdates.rentalInfo?.carType ?? existingCar.car_type,
-                // UPDATE DB: Uncomment here when db aligned with frontend or vv
-                //mileage_charges: carUpdates.rentalInfo?.mileageCharges ?? existingCar.mileage_charges
-                //car_details: carUpdates.rentalInfo?.carDetails ?? existingCar.car_details
+                mileage_charges: carUpdates.rentalInfo?.mileageCharges ?? existingCar.mileage_charges,
+                car_details: carUpdates.rentalInfo?.carDetails ?? existingCar.car_details,
               },
               select: {
-                // UPDATE DB: Uncomment here when db aligned with frontend or vv
                 id: true,
                 itinerary_item_id: true,
                 pickup_location: true,
@@ -1193,8 +1188,8 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
                 dropoff_address: true,
                 dropoff_phone: true,
                 car_type: true,
-                //mileage_charges: true,
-                //car_details: true,
+                mileage_charges: true,
+                car_details: true,
               },
             });
             carRental = {
@@ -1210,14 +1205,13 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
               },
               rentalInfo: {
                 carType: c.car_type,
-                mileageCharges: null,
-                carDetails: null,
+                mileageCharges: c.mileage_charges,
+                carDetails: c.car_details,
               },
             };
           } else {
             const c = await prisma.car_rental_itinerary.create({
               data: {
-                // UPDATE DB: Uncomment here when db aligned with frontend or vv
                 itinerary_item_id: itemId,
                 pickup_location: carUpdates.pickupLocation?.location ?? null,
                 pickup_address: carUpdates.pickupLocation?.address ?? null,
@@ -1226,11 +1220,10 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
                 dropoff_address: carUpdates.dropoffLocation?.address ?? null,
                 dropoff_phone: carUpdates.dropoffLocation?.phone ?? null,
                 car_type: carUpdates.rentalInfo?.carType ?? null,
-                //mileage_charges: carUpdates.rentalInfo?.mileageCharges ?? null,
-                //car_details: carUpdates.rentalInfo?.carDetails ?? null,
+                mileage_charges: carUpdates.rentalInfo?.mileageCharges ?? null,
+                car_details: carUpdates.rentalInfo?.carDetails ?? null,
               },
               select: {
-                // UPDATE DB: Uncomment here when db aligned with frontend or vv
                 id: true,
                 itinerary_item_id: true,
                 pickup_location: true,
@@ -1240,8 +1233,8 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
                 dropoff_address: true,
                 dropoff_phone: true,
                 car_type: true,
-                //mileage_charges: true,
-                //car_details: true,
+                mileage_charges: true,
+                car_details: true,
               },
             });
             carRental = {
@@ -1257,8 +1250,8 @@ router.put("/:tripId/itinerary/:itemId", auth, async (req, res, next) => {
               },
               rentalInfo: {
                 carType: c.car_type,
-                mileageCharges: null,
-                carDetails: null,
+                mileageCharges: c.mileage_charges,
+                carDetails: c.car_details,
               },
             };
           }
