@@ -63,7 +63,7 @@ model itinerary_items {
   confirmation_number                     String?               @db.VarChar(50)
   total_cost                              Decimal?              @db.Decimal(10, 2)
   number_of_guests                        Int?
-  location                                String?               @db.VarChar(255)
+  location_name                           String?               @db.VarChar(255)
   google_place_id                         String?               @db.VarChar(255)
   activity_type                           String?               @db.VarChar(255)
   notes                                   String?               @db.Text
