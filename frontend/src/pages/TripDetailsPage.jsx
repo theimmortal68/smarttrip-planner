@@ -144,13 +144,6 @@ const TripDetailsPage = () => {
                 Itinerary Details
               </h3>
 
-              {selectedTrip.notes && (
-                <div className="mb-6">
-                  <h4 className="font-bold text-gray-700 mb-2">Description</h4>
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedTrip.notes}</p>
-                </div>
-              )}
-
               {/* Activity Details */}
               {activityData && activityData.length > 0 && (
                 <div className="mb-6 p-4 bg-yellow-100 border-4 border-black rounded">

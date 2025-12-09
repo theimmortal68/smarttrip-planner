@@ -311,7 +311,15 @@ export const TripProvider = ({ children }) => {
                 id: item.id,
                 title: item.title,
                 startDate: item.startDate,
+                startTime: item.startTime,
                 endDate: item.endDate,
+                endTime: item.endTime,
+                venue: item.venue,
+                address: item.address,
+                phone: item.phone,
+                website: item.website,
+                email: item.email,
+                totalCost: item.totalCost,
                 ...item.details,
               });
               break;
@@ -321,7 +329,17 @@ export const TripProvider = ({ children }) => {
                 id: item.id,
                 title: item.title,
                 startDate: item.startDate,
+                startTime: item.startTime,
                 endDate: item.endDate,
+                endTime: item.endTime,
+                venue: item.venue,
+                address: item.address,
+                phone: item.phone,
+                website: item.website,
+                email: item.email,
+                confirmationNumber: item.confirmationNumber,
+                numberOfGuests: item.numberOfGuests,
+                totalCost: item.totalCost,
                 ...item.details,
               });
               break;

@@ -139,24 +139,87 @@ const EditTripPage = () => {
     setLodgings(prev => prev.filter(l => l.id !== id))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!selectedTrip) return
-    const updatedTrip = {
-      ...selectedTrip,
-      name,
-      location,
-      startDate,
-      endDate,
-      notes,
-      flightData: flights.length > 0 ? { flights, totalCost: flightTotalCost } : undefined,
-      carRentalData: carRental && carRental.rentalAgency ? carRental : undefined,
-      activityData: activities.length > 0 ? activities : undefined,
-      lodgingData: lodgings.length > 0 ? lodgings : undefined
+    
+    try {
+      // Update basic trip info
+      const updatedTripData = {
+        id: selectedTrip.id,
+        name,
+        location,
+        startDate,
+        endDate,
+        notes
+      }
+      const updated = await updateTrip(updatedTripData)
+      
+      // Update selected trip with the returned data
+      setSelectedTrip(updated)
+      
+      // Update itinerary items
+      const { updateItineraryItem } = await import('../utils/api')
+      
+      // Update activities
+      for (const activity of activities) {
+        if (activity.id) {
+          await updateItineraryItem(selectedTrip.id, activity.id, {
+            itemType: 'activity',
+            title: activity.title,
+            startDate: activity.startDate,
+            startTime: activity.startTime || null,
+            endDate: activity.endDate,
+            endTime: activity.endTime || null,
+            venue: activity.venue || null,
+            address: activity.address || null,
+            phone: activity.phone || null,
+            website: activity.website || null,
+            email: activity.email || null,
+            totalCost: activity.totalCost || null,
+            details: {}
+          })
+        }
+      }
+      
+      // Update lodging
+      for (const lodging of lodgings) {
+        if (lodging.id) {
+          await updateItineraryItem(selectedTrip.id, lodging.id, {
+            itemType: 'lodging',
+            title: lodging.title,
+            startDate: lodging.startDate,
+            startTime: lodging.startTime || null,
+            endDate: lodging.endDate,
+            endTime: lodging.endTime || null,
+            venue: lodging.venue || null,
+            address: lodging.address || null,
+            phone: lodging.phone || null,
+            website: lodging.website || null,
+            email: lodging.email || null,
+            confirmationNumber: lodging.confirmationNumber || null,
+            numberOfGuests: lodging.numberOfGuests || null,
+            totalCost: lodging.totalCost || null,
+            details: {
+              lodgingType: lodging.lodgingType || null,
+              rooms: lodging.rooms || null,
+              beds: lodging.beds || null,
+              pricePerRoom: lodging.pricePerRoom || null
+            }
+          })
+        }
+      }
+      
+      // Reload itinerary items to get fresh data
+      if (loadItineraryItems) {
+        await loadItineraryItems(selectedTrip.id)
+      }
+      
+      navigate('/upcoming-trips-page/trip-details')
+    } catch (error) {
+      console.error('Error saving trip:', error)
+      alert('Failed to save changes. Please try again.')
     }
-    updateTrip(updatedTrip)
-    setSelectedTrip(updatedTrip)
-    navigate('/upcoming-trips-page/trip-details')
   }
 
   return (
@@ -393,18 +456,15 @@ const EditTripPage = () => {
                 <h3 className="text-lg sm:text-xl font-black uppercase mb-4">🎭 Edit Activity Details</h3>
                 {activities.map((activity, idx) => (
                   <div key={activity.id} className="mb-4 sm:mb-6 p-4 sm:p-6 border-4 border-black rounded-lg bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <div className="flex items-center justify-between mb-3 sm:mb-4">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-black uppercase text-sm sm:text-base">{activity.activityName || `Activity ${activity.id}`}</h3>
-                      </div>
-                      {activities.length > 1 && (
+                    {activities.length > 1 && (
+                      <div className="flex justify-end mb-3 sm:mb-4">
                         <button type="button" onClick={() => handleRemoveActivity(activity.id)} className="text-xs sm:text-sm text-red-600 hover:text-red-800 font-bold uppercase border-2 border-red-600 px-2 py-1 rounded hover:bg-red-50">Remove</button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Activity Name</label>
-                        <input type="text" value={activity.activityName} onChange={e => handleActivityChange(activity.id, 'activityName', e.target.value)} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Activity Name" />
+                        <input type="text" value={activity.title} onChange={e => handleActivityChange(activity.id, 'title', e.target.value)} className="border-4 border-black rounded w-full py-2 sm:py-3 px-3 sm:px-4 font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black" placeholder="Activity Name" />
                       </div>
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Venue</label>
@@ -461,14 +521,11 @@ const EditTripPage = () => {
                 <h3 className="text-lg sm:text-xl font-black uppercase mb-4">🏨 Edit Lodging Details</h3>
                 {lodgings.map((lodging, idx) => (
                   <div key={lodging.id} className="mb-4 sm:mb-6 p-4 sm:p-6 border-4 border-black rounded-lg bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <div className="flex items-center justify-between mb-3 sm:mb-4">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-black uppercase text-sm sm:text-base">{lodging.lodgingName || `Lodging ${lodging.id}`}</h3>
-                      </div>
-                      {lodgings.length > 1 && (
+                    {lodgings.length > 1 && (
+                      <div className="flex justify-end mb-3 sm:mb-4">
                         <button type="button" onClick={() => handleRemoveLodging(lodging.id)} className="text-xs sm:text-sm text-red-600 hover:text-red-800 font-bold uppercase border-2 border-red-600 px-2 py-1 rounded hover:bg-red-50">Remove</button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label className="block text-gray-900 font-black uppercase mb-2 text-xs sm:text-sm">Lodging Name</label>
